@@ -3,16 +3,17 @@
 
 # ### PCP Module 1 - load_dataset_module
 
-# In[3]:
+# In[ ]:
 
 
 def artist_music():
     import re 
     
     try:
+        # defines the opening of the file as read only mode, with encoding as utf-8
         with open('data.csv', 'r', encoding='utf8') as file:
             artist_music_dict = {}
-            index=1
+            index=1 # This will be used for the indexable ID
             next(file) #skips the header
 
             for line in file:
@@ -26,6 +27,7 @@ def artist_music():
                 artist_names = [i.strip("\\'") for i in artist_names]
                 artist_names = ''.join(artist_names)
         
+                # create and populate the dictionary with variables from the file
                 d = {}
                 d['ID'] = csvData[6]
                 d['Artists'] = artist_names
@@ -39,28 +41,30 @@ def artist_music():
                 d['Speechiness'] = float(csvData[15])
                 d['Tempo'] = float(csvData[16])
                 d['Valence'] = float(csvData[17])
+                # Assign the created dictionary values to a new dictionary with an added iterable index
                 artist_music_dict[index] = d
-                index+=1 
+                index+=1 # iterate the index until we reach the end of the file
         
             return artist_music_dict
             file.close()
             
-    except IOError as ioerr:
+    except IOError as ioerr: # catch any file errors to prevent crashing of the program
         print('File error: ' + str(ioerr))
     finally:
         print('Finished reading the command for artist music.')
 
 
-# In[4]:
+# In[ ]:
 
 
 def music_features():
     import re 
     
     try:
+        # defines the opening of the file as read only mode, with encoding as utf-8
         with open('data.csv', 'r', encoding='utf8') as file:
             features_dict = {}
-            index=1
+            index=1 # This will be used for the indexable ID
             next(file) #skips the header
             
             for line in file:
@@ -68,6 +72,7 @@ def music_features():
                 line = re.sub(r'(?!(([^"]*"){2})*[^"]*$),', "/", line)
                 csvData = line.split(',')
 
+                # create and populate the dictionary with variables from the file
                 d = {}
                 d['ID'] = csvData[6]
                 d['Song Name'] = csvData[12]
@@ -80,17 +85,20 @@ def music_features():
                 d['Speechiness'] = float(csvData[15])
                 d['Tempo'] = float(csvData[16])
                 d['Valence'] = float(csvData[17])
+                # Assign the created dictionary values to a new dictionary with an added iterable index
                 features_dict[index] = d
-                index+=1 
+                index+=1 # iterate the index until we reach the end of the file
         
             return features_dict
             file.close()
             
-    except IOError as ioerr:
+    except IOError as ioerr: # catch any file errors to prevent crashing of the program
         print('File error: ' + str(ioerr))
     finally:
         print('Finished reading the command for music features.')
 
+
+# In[ ]:
 
 
 
