@@ -3,7 +3,7 @@
 
 # ### PCP Module 2 - similarity_module
 
-# In[4]:
+# In[1]:
 
 
 def search_artist(dict_name):
@@ -37,7 +37,7 @@ def search_artist(dict_name):
         return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
 
 
-# In[5]:
+# In[2]:
 
 
 def join_artist_dict(dict_a, dict_b): # Function to join two lists together, maintaining unique keys
@@ -58,7 +58,7 @@ def join_artist_dict(dict_a, dict_b): # Function to join two lists together, mai
 
 # ![image.png](attachment:image.png)
 
-# In[10]:
+# In[3]:
 
 
 def euclidean_similarity(dict_name, id1, id2):
@@ -136,7 +136,7 @@ def euclidean_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[15]:
+# In[4]:
 
 
 def cosine_similarity(dict_name, id1, id2):
@@ -226,7 +226,7 @@ def cosine_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[18]:
+# In[5]:
 
 
 def pearson_similarity(dict_name, id1, id2):
@@ -326,7 +326,7 @@ def pearson_similarity(dict_name, id1, id2):
         print("You can't compare all features of an artist you have defined.")
 
 
-# In[41]:
+# In[6]:
 
 
 # Code left for analysis, working example with same lengths lists to compare
@@ -358,7 +358,7 @@ def pearson_similarity(dict_name, id1, id2):
 
 # J(A, B) = |A∩B| / |A∪B|
 
-# In[22]:
+# In[7]:
 
 
 def jaccard_similarity(dict_name, id1, id2):
@@ -441,7 +441,7 @@ def jaccard_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[26]:
+# In[8]:
 
 
 def manhattan_similarity(dict_name, id1, id2):
