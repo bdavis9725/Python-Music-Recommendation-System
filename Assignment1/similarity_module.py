@@ -3,14 +3,14 @@
 
 # ### PCP Module 2 - similarity_module
 
-# In[1]:
+# In[ ]:
 
 
 def search_artist(dict_name):
     try:
-        fName = str(input("Please enter the first name of the artist you want to find: ").capitalize())
-        lName = str(input("Please enter the surname of the artist you want to find (entry can be left blank). If the first name of both artists is the same, you will need to enter a surname initial: "                         ).capitalize())
-        feature = str(input("Please enter the feature you want to find for the artists' songs: ").capitalize())
+        fName = str(input("Please enter the first name of the artist you want to find: ").capitalize().rstrip())
+        lName = str(input("Please enter the surname of the artist you want to find (entry can be left blank). If the first name of both artists is the same, you will need to enter a surname initial: "                         ).capitalize().rstrip())
+        feature = str(input("Please enter the feature you want to find for the artists' songs: ").capitalize().rstrip())
     
         # Create empty dictionary and lists for the inputs
         results_dict = {}
@@ -18,7 +18,6 @@ def search_artist(dict_name):
         # Loop through the dictionary, extract all matching artist + song values
         for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
             if fName + " " + lName in dict_name[i]['Artists']:
-                print("\n") # Adds a new line between each output
                 print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])
                 results.append(dict_name[i][feature]) # Add matching feature values to an assignable list
                 
@@ -37,7 +36,46 @@ def search_artist(dict_name):
         return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
 
 
-# In[2]:
+# In[ ]:
+
+
+def search_song(dict_name):
+    try:
+        song_name = input("Please insert the word/s you would like to find in a song: ").capitalize()
+        song_name = song_name.rstrip()   # remove end of input whitespace
+        song_name = song_name.split(' ') # split the words into individual words to detect how many we have
+
+        if len(song_name) == 1: # Check if the input is 1 word or many words
+            song_name = ''.join(song_name) # if it is 1 word, reconnect the word through the join command
+            for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
+                if song_name in dict_name[i]['Song Name']:
+                    print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])   
+        else: # Loop the list and match each word with a value
+            for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
+                song_name = [item.capitalize() for item in song_name] # capitalise each string
+                for j in range(1, len(song_name)):
+                    if song_name[j] in dict_name[i]['Song Name']:
+                        print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])
+                    else:
+                        pass
+                    
+                    #song_search = any(item in song_name for item in .split(','))
+                    #if song_search == True:
+                        
+                    #else:
+                    #    pass
+                
+                        #if song_name[j] in dict_name[i]['Song Name']: # For each word in the list, search the dictionary for matches
+                #print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])   
+        
+    # Error handling for the function is written here
+    except KeyError as keyerror:
+        return(print("You have entered an incorrect value, please check your entry.", keyerror))
+    except TypeError as typeerror:
+        return(print("You can't enter a number or symbol here, please enter a string dictionary name.", typeerror)) 
+
+
+# In[ ]:
 
 
 def join_artist_dict(dict_a, dict_b): # Function to join two lists together, maintaining unique keys
@@ -58,7 +96,7 @@ def join_artist_dict(dict_a, dict_b): # Function to join two lists together, mai
 
 # ![image.png](attachment:image.png)
 
-# In[3]:
+# In[ ]:
 
 
 def euclidean_similarity(dict_name, id1, id2):
@@ -136,7 +174,7 @@ def euclidean_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[4]:
+# In[ ]:
 
 
 def cosine_similarity(dict_name, id1, id2):
@@ -213,7 +251,7 @@ def cosine_similarity(dict_name, id1, id2):
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.", valueerror)
     except TypeError as typeerror:
-        print("Invalid type entered.", typeerror)
+        print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
@@ -226,7 +264,7 @@ def cosine_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[5]:
+# In[ ]:
 
 
 def pearson_similarity(dict_name, id1, id2):
@@ -317,7 +355,7 @@ def pearson_similarity(dict_name, id1, id2):
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.", valueerror)
     except TypeError as typeerror:
-        print("Invalid type entered.", typeerror)
+        print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError as zeroerror:
@@ -326,7 +364,7 @@ def pearson_similarity(dict_name, id1, id2):
         print("You can't compare all features of an artist you have defined.")
 
 
-# In[6]:
+# In[ ]:
 
 
 # Code left for analysis, working example with same lengths lists to compare
@@ -358,7 +396,7 @@ def pearson_similarity(dict_name, id1, id2):
 
 # J(A, B) = |A∩B| / |A∪B|
 
-# In[7]:
+# In[ ]:
 
 
 def jaccard_similarity(dict_name, id1, id2):
@@ -428,7 +466,7 @@ def jaccard_similarity(dict_name, id1, id2):
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
-        print("Invalid type entered.", typeerror)
+        print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
@@ -441,7 +479,7 @@ def jaccard_similarity(dict_name, id1, id2):
 
 # ![image.png](attachment:image.png)
 
-# In[8]:
+# In[ ]:
 
 
 def manhattan_similarity(dict_name, id1, id2):
@@ -487,7 +525,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     y = dict_name[id2]
                     
                     distance = abs(sum([(a - b) for a, b in zip(x, y)])) # Multi-dimensional manhattan
-                    return(print("Manhattan Distance from x to y: ", round(distance,3)))
+                    return(print("Manhattan Distance from x to y:", round(distance,3)))
                 
                 else: # must be working with default dictionary and values
                     # Assign our queried features to our x and y variables
@@ -503,17 +541,11 @@ def manhattan_similarity(dict_name, id1, id2):
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
-        print("Invalid type entered.", typeerror)
+        print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
         print("Sorry, but you cannot divide by 0")
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
-
-
-# In[ ]:
-
-
-
 
