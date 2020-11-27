@@ -82,7 +82,9 @@ def join_artist_dict(dict_a, dict_b): # Function to join two lists together, mai
     except KeyError:
         return(print("You have entered an incorrect value, please check your entry."))
     except TypeError:
-        return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
+        return(print("The search returned no values, please try another entry."))
+    except AttributeError:
+        reutrn(print("There was a problem, please check your results for your artist searches."))
 
 
 # ## Euclidean Similarity Function 
@@ -139,14 +141,14 @@ def euclidean_similarity(dict_name, id1, id2):
                     for value in dict_name[id2]:
                         y.append(value)
                     distance = math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)])) # multi-dimensional euclidean
-                    return(print("Euclidean distance from x to y:", round(distance, 3)))
+                    return(print("Euclidean distance of {} and {}:".format(id1, id2), round(distance, 3)))
                 
                 else: # must be working with default dictionary and values
                     # Assign our queried features to our x and y variables
                     x = dict_name[id1][query]
                     y = dict_name[id2][query]
                     distance = math.sqrt((x - y) ** 2 ) #one-dimensional euclidean formula   
-                    print("Euclidean Distance of", query, "is", round(distance, 3))
+                    print("Euclidean Distance of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
             
     # Error handling for the function is written here
     except KeyError as keyerror:
@@ -228,7 +230,7 @@ def cosine_similarity(dict_name, id1, id2):
                         y.append(value)
                     
                     distance = cosine(x,y) # Use the cosine function defined above to get the metric
-                    print("Cosine Similarity of x and y is:", round(distance, 3))
+                    print("Cosine Similarity of {} and {} is:".format(id1, id2), round(distance, 3))
                     
                 else: # must be working with default dictionary
                     # Assign our queried features to our x and y variables
@@ -236,13 +238,13 @@ def cosine_similarity(dict_name, id1, id2):
                     y = dict_name[id2][query]
                 
                     distance = cosine([x],[y]) # Use the cosine function defined above to get the metric
-                    print("Cosine Similarity of", query, "is", round(distance, 3))
+                    print("Cosine Similarity of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
     
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
     except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.", valueerror)
+        print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
         print("Invalid type entered.")
     except IndexError:
@@ -324,7 +326,7 @@ def pearson_similarity(dict_name, id1, id2):
      
                     # Due to issues, numpy correlation will be used instead to get the output
                     pearson_corr = np.corrcoef(x,y)
-                    return(pearson_corr)
+                    return(print("Pearson Correlation of {} and {} is:".format(id1, id2), pearson_corr))
                 
                 else: # must be working with default dictionary and values
                     # Assign our queried features to our x and y variables
@@ -340,13 +342,13 @@ def pearson_similarity(dict_name, id1, id2):
                     #pearson_corr = (numerator / math.sqrt(denominator))
                     # Due to issues, numpy correlation will be used instead to get the output
                     pearson_corr = np.corrcoef([x,y])
-                    return(pearson_corr)
+                    print("Pearson Correlation of {} for ID {} and ID {} is".format(query, id1, id2), pearson_corr)
     
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
     except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.", valueerror)
+        print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
         print("Invalid type entered.")
     except IndexError:
@@ -432,7 +434,7 @@ def jaccard_similarity(dict_name, id1, id2):
                         y = (feature_list2[i]) 
                         distance = jaccard([x],[y]) # Use the jaccard function defined above to get the metric
                         # print all feature metrics
-                    print("Jaccard Similarity:", key_list[i].strip('[]').strip(' '), round(distance, 3))
+                    print(key_list[i].strip('[]').strip(' '), round(distance, 3))
                     #print("Jaccard Distance:  ", key_list[i].strip('[]').strip(' '), (1 - round(distance, 3)))
             
             else:
@@ -442,7 +444,7 @@ def jaccard_similarity(dict_name, id1, id2):
                     y = dict_name[id2]
                         
                     distance = jaccard(x,y) # Use the jaccard function defined above to get the metric
-                    return(print("Jaccard Similarity of x to y:", round(distance,3)))
+                    return(print("Jaccard Similarity of {} and {}:".format(id1, id2), round(distance,3)))
                 
                 else: # must be working with default dictionary and values
                     # Assign our queried features to our x and y variables
@@ -450,7 +452,7 @@ def jaccard_similarity(dict_name, id1, id2):
                     y = dict_name[id2][query]
                     
                     distance = jaccard([x],[y]) # Use the jaccard function defined above to get the metric
-                    print("Jaccard Similarity of", query, "is", round(distance, 3))
+                    print("Jaccard Similarity of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
                     #print("Jaccard Distance of", query, "is", (1 - round(distance, 3)))
     
     # Error handling for the function is written here
@@ -518,7 +520,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     y = dict_name[id2]
                     
                     distance = abs(sum([(a - b) for a, b in zip(x, y)])) # Multi-dimensional manhattan
-                    return(print("Manhattan Distance from x to y:", round(distance,3)))
+                    return(print("Manhattan Distance of {} and {}:".format(id1, id2), round(distance,3)))
                 
                 else: # must be working with default dictionary and values
                     # Assign our queried features to our x and y variables
@@ -526,7 +528,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     y = dict_name[id2][query]
                 
                 distance = abs(x - y) #one-dimensional manhattan  
-                return(print("Manhattan Distance of", query, "is", round(distance, 3)))
+                print("Manhattan Distance of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
     
     # Error handling for the function is written here
     except KeyError as keyerror:
