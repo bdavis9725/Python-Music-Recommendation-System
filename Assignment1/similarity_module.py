@@ -9,7 +9,7 @@
 def search_artist(dict_name):
     try:
         fName = str(input("Please enter the first name of the artist you want to find: ").capitalize().rstrip())
-        lName = str(input("Please enter the surname of the artist you want to find (entry can be left blank). If the first name of both artists is the same, you will need to enter a surname initial: "                         ).capitalize().rstrip())
+        lName = str(input("Please enter the surname of the artist you want to find. At least an Initial entry is required: "                         ).capitalize().rstrip())
         feature = str(input("Please enter the feature you want to find for the artists' songs: ").capitalize().rstrip())
     
         # Create empty dictionary and lists for the inputs
@@ -34,6 +34,8 @@ def search_artist(dict_name):
         return(print("You have entered an incorrect value, please check your entry."))
     except TypeError:
         return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
+    except IndexError:
+        return(print("You must enter at least an Initial into the Surname box."))
 
 
 # In[ ]:
@@ -54,20 +56,11 @@ def search_song(dict_name):
             for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
                 song_name = [item.capitalize() for item in song_name] # capitalise each string
                 for j in range(1, len(song_name)):
-                    if song_name[j] in dict_name[i]['Song Name']:
+                    if song_name[j] in dict_name[i]['Song Name']: # search each word for a match
                         print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])
                     else:
                         pass
                     
-                    #song_search = any(item in song_name for item in .split(','))
-                    #if song_search == True:
-                        
-                    #else:
-                    #    pass
-                
-                        #if song_name[j] in dict_name[i]['Song Name']: # For each word in the list, search the dictionary for matches
-                #print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])   
-        
     # Error handling for the function is written here
     except KeyError as keyerror:
         return(print("You have entered an incorrect value, please check your entry.", keyerror))
