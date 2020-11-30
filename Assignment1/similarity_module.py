@@ -83,11 +83,11 @@ def search_song(dict_name):
                 for j in range(1, len(song_name)):
                     if song_name[j] in dict_name[i]['Song Name']: # search each word for a match
                         # Add matching values to assignable lists
-                        result_id.append(i)      
+                        result_id.append(i)     
                         result_names.append(dict_name[i]['Artists'])
                         result_songs.append(dict_name[i]['Song Name'])
 
-        if len(result_id) == 0: # If the length of the list above is 0, we found no matches
+        if len(result_id) == 0: # If the length of the list is 0, we found no matches
             print("Your search returned no results.")
         else:
             print("Your search returned {} results.".format(len(result_id)))
@@ -198,16 +198,20 @@ def euclidean_similarity(dict_name, id1, id2):
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
+        euclidean_similarity(dict_name,'','')
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
+        euclidean_similarity(dict_name,'','')
     except TypeError as typeerror:
         print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0.")
+        print("Sorry, but you cannot divide by 0, metric will restart.")
+        euclidean_similarity(dict_name,'','')
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
+        euclidean_similarity(dict_name,'','')
 
 
 # ## Cosine Similarity Function
@@ -294,16 +298,20 @@ def cosine_similarity(dict_name, id1, id2):
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
+        cosine_similarity(dict_name,'','')
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
+        cosine_similarity(dict_name,'','')
     except TypeError as typeerror:
         print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0.")
+        print("Sorry, but you cannot divide by 0, the metric will restart.")
+        cosine_similarity(dict_name,'','')
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
+        cosine_similarity(dict_name,'','')
 
 
 # ## Pearson Correlation Similarity Function
@@ -404,6 +412,7 @@ def pearson_similarity(dict_name, id1, id2):
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
+        pearson_similarity(dict_name,'','')
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
@@ -411,9 +420,11 @@ def pearson_similarity(dict_name, id1, id2):
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError as zeroerror:
-        print("Sorry, but you cannot divide by 0.")
+        print("Sorry, but you cannot divide by 0, the metric will restart.")
+        pearson_similarity(dict_name,'','')
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
+        pearson_similarity(dict_name,'','')
 
 
 # In[ ]:
@@ -521,16 +532,20 @@ def jaccard_similarity(dict_name, id1, id2):
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
+        jaccard_similarity(dict_name,'','')
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
+        jaccard_similarity(dict_name,'','')
     except TypeError as typeerror:
         print("Invalid type entered.")
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0.")
+        print("Sorry, but you cannot divide by 0, the metric will restart.")
+        jaccard_similarity(dict_name,'','')
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
+        jaccard_similarity(dict_name,'','')
 
 
 # ## Manhattan Similarity Function
@@ -602,6 +617,7 @@ def manhattan_similarity(dict_name, id1, id2):
     # Error handling for the function is written here
     except KeyError as keyerror:
         print("That feature doesn't exist.", keyerror)
+        manhattan_similarity(dict_name,'','')
     except ValueError as valueerror:
         print("Your entry is invalid, please make sure your entry was the correct format.")
     except TypeError as typeerror:
@@ -609,7 +625,9 @@ def manhattan_similarity(dict_name, id1, id2):
     except IndexError:
         print("There was a problem, did you enter your dictionary name correctly?")
     except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0")
+        print("Sorry, but you cannot divide by 0, the metric will restart.")
+        manhattan_similarity(dict_name,'','')
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
+        manhattan_similarity(dict_name,'','')
 
