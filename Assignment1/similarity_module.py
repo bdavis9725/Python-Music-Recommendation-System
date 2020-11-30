@@ -15,18 +15,34 @@ def search_artist(dict_name):
         # Create empty dictionary and lists for the inputs
         results_dict = {}
         results = []
+        result_names = []
+        result_songs = []
+        result_id = []
+        num=0 # Index for printing results
+        
         # Loop through the dictionary, extract all matching artist + song values
         for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
             if fName + " " + lName in dict_name[i]['Artists']:
-                print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])
-                results.append(dict_name[i][feature]) # Add matching feature values to an assignable list
+                results.append(dict_name[i][feature]) # Add matching values to assignable lists
+                result_names.append(dict_name[i]['Artists'])
+                result_songs.append(dict_name[i]['Song Name'])
+                result_id.append(i) 
                 
         if len(results) == 0: # If the length of the list above is 0, we found no matches
+            print("Your search returned no results.")
             return None       # So we will simply return nothing
         else:
             # return an assignable dictionary using the First Name and Surname Initial for the indexable ID
+            print("Your search returned {} results.".format(len(results)))
+            output = str(input("Would you like to view results? ").capitalize().rstrip())
+            if output == "Yes":
+                for k in range(0, len(results)):
+                    print("ID: {} | Artists/s: {} | Song: {} | {}: {}".format(result_id[num], result_names[num], result_songs[num], feature, results[num]))
+                    num+=1
+            else:
+                print("Search complete.")
             results_dict[fName + " " + lName[0]] = results
-    
+        
         return results_dict # return the created nested dictionary
     
     # Error handling for the function is written here
@@ -47,19 +63,41 @@ def search_song(dict_name):
         song_name = song_name.rstrip()   # remove end of input whitespace
         song_name = song_name.split(' ') # split the words into individual words to detect how many we have
 
+        result_id = []
+        result_names = []
+        result_songs = []
+        num=0 # Index for printing results
+        
         if len(song_name) == 1: # Check if the input is 1 word or many words
             song_name = ''.join(song_name) # if it is 1 word, reconnect the word through the join command
             for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
                 if song_name in dict_name[i]['Song Name']:
-                    print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])   
+                    # Add matching values to assignable lists 
+                    result_id.append(i)      
+                    result_names.append(dict_name[i]['Artists'])
+                    result_songs.append(dict_name[i]['Song Name']) 
+                    
         else: # Loop the list and match each word with a value
             for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
                 song_name = [item.capitalize() for item in song_name] # capitalise each string
                 for j in range(1, len(song_name)):
                     if song_name[j] in dict_name[i]['Song Name']: # search each word for a match
-                        print("ID:", i, "|", "Artist/s:", dict_name[i]['Artists'], "|", "Song:", dict_name[i]['Song Name'])
-                    else:
-                        pass
+                        # Add matching values to assignable lists
+                        result_id.append(i)      
+                        result_names.append(dict_name[i]['Artists'])
+                        result_songs.append(dict_name[i]['Song Name'])
+
+        if len(result_id) == 0: # If the length of the list above is 0, we found no matches
+            print("Your search returned no results.")
+        else:
+            print("Your search returned {} results.".format(len(result_id)))
+            output = str(input("Would you like to view results? ").capitalize().rstrip())
+            if output == "Yes":
+                for k in range(0, len(result_id)):
+                    print("ID: {} | Artists/s: {} | Song: {}".format(result_id[num], result_names[num], result_songs[num]))
+                    num+=1
+            else:
+                print("Search complete.")
                     
     # Error handling for the function is written here
     except KeyError as keyerror:
@@ -97,6 +135,11 @@ def join_artist_dict(dict_a, dict_b): # Function to join two lists together, mai
 def euclidean_similarity(dict_name, id1, id2):
     import math
     
+    def feature_select():
+        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+        for number, feature in enumerate(feature_select, start=1):
+            print(number, feature) # Present a list of options to the user for feature choice
+    
     try:   
         dict_name = dict_name
     
@@ -112,12 +155,14 @@ def euclidean_similarity(dict_name, id1, id2):
                 
         if id1 == id2: # check to make sure the user is not entering the same ID twice
             print("You can't have the same ID, please choose 2 different IDs.")
+            euclidean_similarity(dict_name, '','')
         else:
-            print("If you are working with defined artist lists, enter 'Yes'")
-            query = input("Do you want to compare a specific feature? Enter no or leave the entry blank if you want to compare all features. ").capitalize()
+            print("If you are working with defined artist lists, enter 'Artist'")
+            feature_select()
+            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
 
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features.\n")
+                print("Comparing all respective features using Euclidean.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
                 feature_list = list(dict_name[id1].values())[-9:] 
                 feature_list2 = list(dict_name[id2].values())[-9:]
@@ -131,7 +176,7 @@ def euclidean_similarity(dict_name, id1, id2):
                     print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
             
             else:
-                if query == 'Yes' and len(dict_name) == 2: # must be working with chosen artists
+                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
                     x = []
                     y = []
                     
@@ -175,6 +220,11 @@ def euclidean_similarity(dict_name, id1, id2):
 def cosine_similarity(dict_name, id1, id2):
     import math
     
+    def feature_select():
+        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+        for number, feature in enumerate(feature_select, start=1):
+            print(number, feature) # Present a list of options to the user for feature choice
+    
     def square_rooted(x): # define the sqrt for the cosine function
         return round(math.sqrt(sum([a*a for a in x])),3)
     
@@ -198,12 +248,13 @@ def cosine_similarity(dict_name, id1, id2):
                 
         if id1 == id2: # check to make sure the user is not entering the same ID twice
             print("You can't have the same ID, please choose 2 different IDs.")
+            cosine_similarity(dict_name, '', '')
         else:
-            print("If you are working with defined artist lists, enter 'Yes'")
-            query = input("Do you want to compare a specific feature? Enter no or leave the entry blank if you want to compare all features. ").capitalize()
-
+            print("If you are working with defined artist lists, enter 'Artist'")
+            feature_select()
+            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features.\n")
+                print("Comparing all respective features using Cosine.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
                 feature_list = list(dict_name[id1].values())[-9:]
                 feature_list2 = list(dict_name[id2].values())[-9:]
@@ -219,7 +270,7 @@ def cosine_similarity(dict_name, id1, id2):
                     print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
             
             else: 
-                if query == 'Yes' and len(dict_name) == 2: # must be working with chosen artists
+                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
                     x = []
                     y = []
                 
@@ -266,6 +317,11 @@ def pearson_similarity(dict_name, id1, id2):
     import math
     import numpy as np
     
+    def feature_select():
+        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+        for number, feature in enumerate(feature_select, start=1):
+            print(number, feature) # Present a list of options to the user for feature choice
+    
     try:   
         dict_name = dict_name
     
@@ -281,12 +337,13 @@ def pearson_similarity(dict_name, id1, id2):
                 
         if id1 == id2: # check to make sure the user is not entering the same ID twice
             print("You can't have the same ID, please choose 2 different IDs.")
+            pearson_similarity(dict_name, '', '')
         else:
-            print("If you are working with defined artist lists, enter 'Yes'")
-            query = input("Do you want to compare a specific feature? Enter no or leave the entry blank if you want to compare all features. ").capitalize()
-
+            print("If you are working with defined artist lists, enter 'Artist'")
+            feature_select()
+            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features.\n")
+                print("Comparing all respective features using Pearson.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
                 feature_list = list(dict_name[id1].values())[-9:]
                 feature_list2 = list(dict_name[id2].values())[-9:]
@@ -314,7 +371,7 @@ def pearson_similarity(dict_name, id1, id2):
             else:
                 # This is not possible unless the two artists 
                 # have the exact same number of songs in the dictionary
-                if query == 'Yes' and len(dict_name) == 2: # must be working with chosen artists
+                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
                     x = []
                     y = []
                     
@@ -397,6 +454,11 @@ def pearson_similarity(dict_name, id1, id2):
 def jaccard_similarity(dict_name, id1, id2):
     import math
     
+    def feature_select():
+        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+        for number, feature in enumerate(feature_select, start=1):
+            print(number, feature) # Present a list of options to the user for feature choice
+    
     def jaccard(x, y): # define the jaccard function to avoid re-using code
         intersection = len(list(set(x).intersection(y)))
         union = (len(x) + len(y)) - intersection
@@ -417,12 +479,13 @@ def jaccard_similarity(dict_name, id1, id2):
                 
         if id1 == id2: # check to make sure the user is not entering the same ID twice
             print("You can't have the same ID, please choose 2 different IDs.")
+            jaccard_similarity(dict_name, '', '')
         else:
-            print("If you are working with defined artist lists, enter 'Yes'")
-            query = input("Do you want to compare a specific feature? Enter no or leave the entry blank if you want to compare all features. ").capitalize()
-
+            print("If you are working with defined artist lists, enter 'Artist'")
+            feature_select()
+            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features.\n")
+                print("Comparing all respective features using Jaccard.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
                 feature_list = list(dict_name[id1].values())[-9:]
                 feature_list2 = list(dict_name[id2].values())[-9:]
@@ -438,7 +501,7 @@ def jaccard_similarity(dict_name, id1, id2):
                     #print("Jaccard Distance:  ", key_list[i].strip('[]').strip(' '), (1 - round(distance, 3)))
             
             else:
-                if query == 'Yes' and len(dict_name) == 2: # must be working with chosen artists
+                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
                     # Assign each artist to a different value of x or y
                     x = dict_name[id1]
                     y = dict_name[id2]
@@ -480,6 +543,11 @@ def jaccard_similarity(dict_name, id1, id2):
 def manhattan_similarity(dict_name, id1, id2):
     import math
     
+    def feature_select():
+        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+        for number, feature in enumerate(feature_select, start=1):
+            print(number, feature) # Present a list of options to the user for feature choice
+    
     try:   
         dict_name = dict_name
     
@@ -495,12 +563,13 @@ def manhattan_similarity(dict_name, id1, id2):
                 
         if id1 == id2: # check to make sure the user is not entering the same ID twice
             print("You can't have the same ID, please choose 2 different IDs.")
+            manhattan_similarity(dict_name, '', '')
         else:
-            print("If you are working with defined artist lists, enter 'Yes'")
-            query = input("Do you want to compare a specific feature? Enter no or leave the entry blank if you want to compare all features. ").capitalize()
-
+            print("If you are working with defined artist lists, enter 'Artist'")
+            feature_select()
+            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features.\n")
+                print("Comparing all respective features using Manhattan.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
                 feature_list = list(dict_name[id1].values())[-9:]
                 feature_list2 = list(dict_name[id2].values())[-9:]
@@ -514,7 +583,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
             
             else:
-                if query == 'Yes' and len(dict_name) == 2: # must be working with chosen artists
+                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
                     # Assign each artist to a different value of x or y
                     x = dict_name[id1]
                     y = dict_name[id2]
