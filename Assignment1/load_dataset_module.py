@@ -32,6 +32,10 @@ def artist_music():
                 d['ID'] = csvData[6]
                 d['Artists'] = artist_names
                 d['Song Name'] = csvData[12]
+                d['Duration'] = csvData[3]
+                d['Key'] = csvData[8]
+                d['Explicit'] = csvData[5]
+                d['Release Date'] = csvData[14]
                 d['Accoustiness'] = float(csvData[0])
                 d['Danceability'] = float(csvData[2])
                 d['Energy'] = float(csvData[4])
