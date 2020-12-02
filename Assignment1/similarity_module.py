@@ -159,7 +159,7 @@ def euclidean_similarity(dict_name, id1, id2):
         else:
             print("If you are working with defined artist lists, enter 'Artist'")
             feature_select()
-            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
+            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
 
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
                 print("Comparing all respective features using Euclidean.\n")
@@ -256,7 +256,7 @@ def cosine_similarity(dict_name, id1, id2):
         else:
             print("If you are working with defined artist lists, enter 'Artist'")
             feature_select()
-            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
+            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
                 print("Comparing all respective features using Cosine.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
@@ -349,7 +349,7 @@ def pearson_similarity(dict_name, id1, id2):
         else:
             print("If you are working with defined artist lists, enter 'Artist'")
             feature_select()
-            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
+            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
                 print("Comparing all respective features using Pearson.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
@@ -494,7 +494,7 @@ def jaccard_similarity(dict_name, id1, id2):
         else:
             print("If you are working with defined artist lists, enter 'Artist'")
             feature_select()
-            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
+            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
                 print("Comparing all respective features using Jaccard.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
@@ -582,7 +582,7 @@ def manhattan_similarity(dict_name, id1, id2):
         else:
             print("If you are working with defined artist lists, enter 'Artist'")
             feature_select()
-            query = input("Which feature do you want to use for comparison? Either enter the feature name or enter 'No' / leave the entry blank if you want to compare all features. ").capitalize().rstrip()
+            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
             if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
                 print("Comparing all respective features using Manhattan.\n")
                 # take values from the dictionary from the end,to avoid the string values at the beginning
@@ -630,4 +630,59 @@ def manhattan_similarity(dict_name, id1, id2):
     except AttributeError:
         print("You can't compare all features of an artist you have defined.")
         manhattan_similarity(dict_name,'','')
+
+
+# ### Functions for the Metric choices within the Main function
+
+# In[ ]:
+
+
+# Function for metric selection
+def metric_choice(dict_name):
+    if len(dict_name) == 2: # Check the length, only the artist defined dictionary is length of 2
+        metric = int(input("Which metric would you like to use from the selection: Enter the number: "))
+        key_list = str(list(dict_name.keys())).split(',') # take the associated key names
+        key_list = [key.strip('[]').strip(' ') for key in key_list]
+        key1 = ''.join(map(str, key_list[0])).strip("''") # Get the first key
+        key2 = ''.join(map(str, key_list[1])).strip("''") # Get the second key
+        if metric == 1:
+            euclidean_similarity(dict_name, key1, key2)
+        elif metric == 2:
+            cosine_similarity(dict_name, key1, key2)
+        elif metric == 3:
+            pearson_similarity(dict_name, key1, key2)
+        elif metric == 4:
+            jaccard_similarity(dict_name, key1, key2)
+        elif metric == 5:
+            manhattan_similarity(dict_name, key1, key2)
+        else:
+            print("Your selection is incorrect.")
+            if metric == '': # If entry is blank, end the program
+                print("You entered nothing, the program will end.")
+            else:
+                metric_choice(dict_name) # Restart the metric choice
+        
+    else:
+        metric = int(input("Which metric would you like to use from the selection: Enter the number: "))
+        if metric == 1:
+            euclidean_similarity(dict_name, '', '')
+        elif metric == 2:
+            cosine_similarity(dict_name, '', '')
+        elif metric == 3:
+            pearson_similarity(dict_name, '', '')
+        elif metric == 4:
+            jaccard_similarity(dict_name, '', '')
+        elif metric == 5:
+            manhattan_similarity(dict_name, '', '')
+        else:
+            print("Your selection is incorrect.")
+            if metric == '': # If entry is blank, end the program
+                print("You entered nothing, the program will end.")
+            else:
+                metric_choice(dict_name) # Restart the metric choice
+                
+def metric_selection():
+    metric_select = ["Euclidean", "Cosine", "Pearson", "Jaccard", "Manhattan"]
+    for number, metric in enumerate(metric_select, start=1):
+        print(number, metric) # Present a list of options to the user for metric choice                
 
