@@ -594,7 +594,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     for value in feature_list, feature_list2: # take values over the loop and compare them
                         x = (feature_list[i]) 
                         y = (feature_list2[i]) 
-                        distance = abs(x) + abs(y) #one-dimensional manhattan
+                        distance = abs(x - y) #one-dimensional manhattan
                     print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
             
             else:
@@ -603,7 +603,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     x = dict_name[id1]
                     y = dict_name[id2]
                     
-                    distance = abs(-sum([(a + b) for a, b in zip(x, y)])) # Multi-dimensional manhattan
+                    distance = sum(abs(a - b) for a, b in zip(x, y)) # Multi-dimensional manhattan
                     return(print("Manhattan Distance of {} and {}:".format(id1, id2), round(distance,3)))
                 
                 else: # must be working with default dictionary and values
@@ -611,7 +611,7 @@ def manhattan_similarity(dict_name, id1, id2):
                     x = dict_name[id1][query]
                     y = dict_name[id2][query]
                 
-                distance = abs(x) + abs(y) #one-dimensional manhattan  
+                distance = abs(x - y) #one-dimensional manhattan  
                 print("Manhattan Distance of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
     
     # Error handling for the function is written here
