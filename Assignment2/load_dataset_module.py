@@ -3,7 +3,7 @@
 
 # ### PCP Assignment 2 Module 1 - load_dataset_module
 
-# In[1]:
+# In[ ]:
 
 
 import pandas as pd # Load the library we need
@@ -12,7 +12,7 @@ import pandas as pd # Load the library we need
 
 # ### Define the classes
 
-# In[2]:
+# In[ ]:
 
 
 # Use a metaclass to make classes iterable later
@@ -21,7 +21,7 @@ class IterRegistry(type):
         return iter(cls.registry)
 
 
-# In[3]:
+# In[ ]:
 
 
 class Artist(object):
@@ -53,7 +53,7 @@ class Artist(object):
         pass
 
 
-# In[4]:
+# In[ ]:
 
 
 class Song(object):
@@ -105,7 +105,7 @@ class Song(object):
         return f'Song Name: {self.songname}'
 
 
-# In[5]:
+# In[ ]:
 
 
 # Could use a class for the extra features from the csv, but not sure yet
@@ -114,7 +114,7 @@ class Extras():
     pass
 
 
-# In[6]:
+# In[ ]:
 
 
 # Define a sub-class that inherits all features from the above classes
@@ -140,9 +140,25 @@ class Track(Artist, Song):
     # Override inherited repr so that the output is correct
     def __repr__(self):
         return f'Artist Name/s: {self.artistname.strip("[]")}, Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+    
+    def to_dict(self):
+        return {
+            'Artist Name': self.artistname,
+            'Song Name': self.songname,
+            'Music_ID': self.music_ID,
+            'Acousticness': self.acousticness,
+            'Danceability': self.danceability,
+            'Energy': self.energy,
+            'Liveness': self.liveness,
+            'Loudness': self.loudness,
+            'Popularity': self.popularity,
+            'Speechiness': self.speechiness,
+            'Tempo': self.tempo,
+            'Valence': self.valence, 
+        }
 
 
-# In[8]:
+# In[ ]:
 
 
 #print(help(Track))
@@ -150,7 +166,7 @@ class Track(Artist, Song):
 
 # ### Create the Functions
 
-# In[9]:
+# In[ ]:
 
 
 def artist_music():
@@ -172,7 +188,7 @@ def artist_music():
         print('Finished reading the command for artist name file reading.')
 
 
-# In[10]:
+# In[ ]:
 
 
 def music_features():
@@ -211,10 +227,10 @@ def music_features():
     except IOError as ioerr: # catch any file errors to prevent crashing of the program
         print('File error: ' + str(ioerr))
     finally:
-        print('Finished reading the command for music features.')
+        print('Finished reading the command for music features file loading.')
 
 
-# In[11]:
+# In[ ]:
 
 
 def read_wholeFile():
