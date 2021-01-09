@@ -182,7 +182,7 @@ class Track(Artist, Song, Extras):
         return {
             #'Artist Name': self.artistname,
             #'Song Name': self.songname,
-            #'Music_ID': self.music_ID,
+            'Music_ID': self.music_ID,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
             'Energy': self.energy,
@@ -192,6 +192,11 @@ class Track(Artist, Song, Extras):
             'Speechiness': self.speechiness,
             'Tempo': self.tempo,
             'Valence': self.valence, 
+            'Explicit': self.explicit,
+            'Key': self.key,
+            'Instrumentalness': self.instrumentalness
+            'Duration in ms': self.duration_ms,
+            'Release Date': self.release_date
         }
 
 
