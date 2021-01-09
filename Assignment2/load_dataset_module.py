@@ -96,10 +96,10 @@ class Song(object):
         return f'Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
   
     def getFeatures(self):
-        return self.songname, self.music_ID, self.acousticness, self.danceability, self.energy, self.liveness, self.loudness, self.popularity, self.speechiness, self.tempo, self.valence
+        return f'Song Name: {self.songname}, Music ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def getComparisonFeatures(self):
-        return self.acousticness, self.danceability, self.energy, self.liveness, self.loudness, self.popularity, self.speechiness, self.tempo, self.valence
+        return f'Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def getSongName(self):
         return f'Song Name: {self.songname}'
@@ -108,10 +108,41 @@ class Song(object):
 # In[ ]:
 
 
-# Could use a class for the extra features from the csv, but not sure yet
-# Left here just in case
-class Extras():
-    pass
+# Class for the extra features from the dataset
+
+class Extras(object):
+    __metaclass__ = IterRegistry
+    _registry = []
+    
+    def __init__(self, 
+                 duration_ms,
+                 explicit,
+                 instrumentalness,
+                 key,
+                 mode,
+                 release_date,
+                 **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        self._registry.append(self)
+        
+        self.duration_ms = duration_ms
+        self.explicit = explicit
+        self.instrumentalness = instrumentalness
+        self.key = key
+        self.mode = mode
+        self.release_date = release_date
+        
+    # Returns object in string format for readability
+    def __repr__(self):
+        pass
+        # Allows the ability to print out all names
+        #return f'Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+  
+    def getExtras(self):
+        return f'Duration: {self.duration_ms}, Explicit: {self.explicit}, Instrumentalness: {self.instrumentalness}, Key: {self.key}, Mode: {self.mode}, Release Date: {self.release_date}'
+        
 
 
 # In[ ]:
@@ -119,11 +150,11 @@ class Extras():
 
 # Define a sub-class that inherits all features from the above classes
 
-class Track(Artist, Song):
+class Track(Artist, Song, Extras):
     __metaclass__ = IterRegistry
     _registry = []
     
-    def __init__(self, an, sn, ID, acc, dan, en, live, loud, popu, spe, tem, val):
+    def __init__(self, an, sn, ID, acc, dan, en, live, loud, popu, spe, tem, val, dur, expl, instr, key, mode, reldat):
         super().__init__(artistname = an,
                          songname = sn,
                          music_ID = ID,
@@ -135,7 +166,13 @@ class Track(Artist, Song):
                          popularity = popu,
                          speechiness = spe,
                          tempo = tem,
-                         valence = val)
+                         valence = val,
+                         duration_ms = dur,
+                         explicit = expl,
+                         instrumentalness = instr,
+                         key = key,
+                         mode = mode,
+                         release_date = reldat)
     
     # Override inherited repr so that the output is correct
     def __repr__(self):
@@ -143,9 +180,9 @@ class Track(Artist, Song):
     
     def to_dict(self):
         return {
-            'Artist Name': self.artistname,
+            #'Artist Name': self.artistname,
             'Song Name': self.songname,
-            'Music_ID': self.music_ID,
+            #'Music_ID': self.music_ID,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
             'Energy': self.energy,
@@ -158,85 +195,15 @@ class Track(Artist, Song):
         }
 
 
-# In[ ]:
-
-
-#print(help(Track))
-
-
-# ### Create the Functions
+# ### Create the File-Read Function
 
 # In[ ]:
 
 
-def artist_music():
+def read_File():
     try:
-        df_artists = pd.read_csv("data.csv", encoding = 'utf8', delimiter = ',')
-#         df_artists.index += 1
-#         artists = df_artists.to_dict(orient='records')
-
-        artist_list = []
-        for name in df_artists.artists:
-            name = name.strip("[]")
-            artist_list.append(Artist(name))
-            
-        return artist_list       #return the dictionary for use
-    
-    except IOError as ioerr: # catch any file errors to prevent crashing of the program
-        print('File error: ' + str(ioerr))
-    finally:
-        print('Finished reading the command for artist name file reading.')
-
-
-# In[ ]:
-
-
-def music_features():
-    try:
-        features = pd.read_csv('data.csv', encoding = 'utf8', delimiter=',', low_memory=False,
-                                   usecols=['id', 'name', 'acousticness','danceability','energy','liveness','loudness','popularity','speechiness','tempo','valence'])
-        
-        song_features_list = []
-        for value in zip(features.name,                          
-                         features.id, 
-                         features.acousticness, 
-                         features.danceability, 
-                         features.energy,
-                         features.liveness,
-                         features.loudness,
-                         features.popularity,
-                         features.speechiness,
-                         features.tempo,
-                         features.valence):
-
-            song_features_list.append(Song(value[0],
-                                           value[1],
-                                           value[2],
-                                           value[3],
-                                           value[4],
-                                           value[5],
-                                           value[6],
-                                           value[7],
-                                           value[8],
-                                           value[9],
-                                           value[10]))
-        
-        return song_features_list
-        del song_features_list # Delete from memory when finished 
-        
-    except IOError as ioerr: # catch any file errors to prevent crashing of the program
-        print('File error: ' + str(ioerr))
-    finally:
-        print('Finished reading the command for music features file loading.')
-
-
-# In[ ]:
-
-
-def read_wholeFile():
-    try:
-        df_file = pd.read_csv('data.csv', encoding = 'utf8', delimiter=',', low_memory=False,
-                              usecols=['artists', 'id', 'name', 'acousticness','danceability','energy','liveness','loudness','popularity','speechiness','tempo','valence'])
+        df_file = pd.read_csv('data.csv', delimiter=',', low_memory=False)
+        df_file.rename(columns={'mode': 'modal'}, inplace = True)
         
         file_list = []
 
@@ -251,26 +218,43 @@ def read_wholeFile():
                          df_file.popularity,
                          df_file.speechiness,
                          df_file.tempo,
-                         df_file.valence):
+                         df_file.valence,
+                         df_file.duration_ms,
+                         df_file.explicit,
+                         df_file.instrumentalness,
+                         df_file.key,
+                         df_file.modal,
+                         df_file.release_date):
 
-            file_list.append(Track (value[0],
-                                    value[1],
-                                    value[2],
-                                    value[3],
-                                    value[4],
-                                    value[5],
-                                    value[6],
-                                    value[7],
-                                    value[8],
-                                    value[9],
-                                    value[10],
-                                    value[11]))
+            file_list.append(Track(value[0],
+                                   value[1],
+                                   value[2],
+                                   value[3],
+                                   value[4],
+                                   value[5],
+                                   value[6],
+                                   value[7],
+                                   value[8],
+                                   value[9],
+                                   value[10],
+                                   value[11],
+                                   value[12],
+                                   value[13],
+                                   value[14],
+                                   value[15],
+                                   value[16],
+                                   value[17]))
         
         return file_list
-        del file_list # Delete from memory when finished 
-        
+    
     except IOError as ioerr: # catch any file errors to prevent crashing of the program
         print('File error: ' + str(ioerr))
     finally:
-        print('Finished reading the command for full file loading.')
+        print('Finished reading the command for file loading.')
+
+
+# In[ ]:
+
+
+
 
