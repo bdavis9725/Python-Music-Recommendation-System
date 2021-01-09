@@ -194,9 +194,9 @@ class Track(Artist, Song, Extras):
             'Valence': self.valence, 
             'Explicit': self.explicit,
             'Key': self.key,
-            'Instrumentalness': self.instrumentalness
+            'Instrumentalness': self.instrumentalness,
             'Duration in ms': self.duration_ms,
-            'Release Date': self.release_date
+            'Release Date': self.release_date,
         }
 
 
