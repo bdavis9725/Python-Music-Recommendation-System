@@ -1,4 +1,4 @@
-# PCP_Assignment
+# Programming Concepts and Practices Assignment
  
 ## The Intelligent Recommendation Service
 This repo holds the code for parts 1 and 2 of my project in the PCP module of my MSc in Big Data Analytics course at Sheffield Hallam University.
