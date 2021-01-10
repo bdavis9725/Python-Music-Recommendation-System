@@ -194,62 +194,126 @@ class Track(Artist, Song, Extras):
         }
 
 
+# In[ ]:
+
+
+class file_loader():
+    __metaclass__ = IterRegistry
+    _registry = []
+    
+    def __init__(self):
+        self.filelist = []
+        self.data = 'data.csv'
+    
+    def read_file(self):
+        try:
+            df_file = pd.read_csv(self.data, delimiter=',', low_memory=False)
+            #Remove duplicate song entries
+            #df_file.drop_duplicates(subset ="name", keep = 'first', inplace = True) 
+            df_file.rename(columns={'mode': 'modal'}, inplace = True)
+
+            for value in zip(df_file.artists,
+                             df_file.name,                          
+                             df_file.id, 
+                             df_file.acousticness, 
+                             df_file.danceability, 
+                             df_file.energy,
+                             df_file.liveness,
+                             df_file.loudness,
+                             df_file.popularity,
+                             df_file.speechiness,
+                             df_file.tempo,
+                             df_file.valence,
+                             df_file.duration_ms,
+                             df_file.explicit,
+                             df_file.instrumentalness,
+                             df_file.key,
+                             df_file.modal,
+                             df_file.release_date):
+
+                self.filelist.append(Track(value[0],
+                                       value[1],
+                                       value[2],
+                                       value[3],
+                                       value[4],
+                                       value[5],
+                                       value[6],
+                                       value[7],
+                                       value[8],
+                                       value[9],
+                                       value[10],
+                                       value[11],
+                                       value[12],
+                                       value[13],
+                                       value[14],
+                                       value[15],
+                                       value[16],
+                                       value[17]))
+        
+            return self.filelist
+    
+        except IOError as ioerr: # catch any file errors to prevent crashing of the program
+            print('File error: ' + str(ioerr))
+        finally:
+            print('Finished reading the command for file loading.')
+
+
 # ### Create the File-Read Function
 
 # In[ ]:
 
 
-def read_File():
-    try:
-        df_file = pd.read_csv('data.csv', delimiter=',', low_memory=False)
-        #Remove duplicate song entries
-        df_file.drop_duplicates(subset ="name", keep = 'first', inplace = True) 
-        df_file.rename(columns={'mode': 'modal'}, inplace = True)
+# def read_File():
+#     try:
+#         df_file = pd.read_csv('data.csv', delimiter=',', low_memory=False)
+#         #Remove duplicate song entries
+#         df_file.drop_duplicates(subset ="name", keep = 'first', inplace = True) 
+#         df_file.rename(columns={'mode': 'modal'}, inplace = True)
         
-        file_list = []
+#         file_list = []
 
-        for value in zip(df_file.artists,
-                         df_file.name,                          
-                         df_file.id, 
-                         df_file.acousticness, 
-                         df_file.danceability, 
-                         df_file.energy,
-                         df_file.liveness,
-                         df_file.loudness,
-                         df_file.popularity,
-                         df_file.speechiness,
-                         df_file.tempo,
-                         df_file.valence,
-                         df_file.duration_ms,
-                         df_file.explicit,
-                         df_file.instrumentalness,
-                         df_file.key,
-                         df_file.modal,
-                         df_file.release_date):
+#         for value in zip(df_file.artists,
+#                          df_file.name,                          
+#                          df_file.id, 
+#                          df_file.acousticness, 
+#                          df_file.danceability, 
+#                          df_file.energy,
+#                          df_file.liveness,
+#                          df_file.loudness,
+#                          df_file.popularity,
+#                          df_file.speechiness,
+#                          df_file.tempo,
+#                          df_file.valence,
+#                          df_file.duration_ms,
+#                          df_file.explicit,
+#                          df_file.instrumentalness,
+#                          df_file.key,
+#                          df_file.modal,
+#                          df_file.release_date):
 
-            file_list.append(Track(value[0],
-                                   value[1],
-                                   value[2],
-                                   value[3],
-                                   value[4],
-                                   value[5],
-                                   value[6],
-                                   value[7],
-                                   value[8],
-                                   value[9],
-                                   value[10],
-                                   value[11],
-                                   value[12],
-                                   value[13],
-                                   value[14],
-                                   value[15],
-                                   value[16],
-                                   value[17]))
+#             file_list.append(Track(value[0],
+#                                    value[1],
+#                                    value[2],
+#                                    value[3],
+#                                    value[4],
+#                                    value[5],
+#                                    value[6],
+#                                    value[7],
+#                                    value[8],
+#                                    value[9],
+#                                    value[10],
+#                                    value[11],
+#                                    value[12],
+#                                    value[13],
+#                                    value[14],
+#                                    value[15],
+#                                    value[16],
+#                                    value[17]))
         
-        return file_list
+#         return file_list
     
-    except IOError as ioerr: # catch any file errors to prevent crashing of the program
-        print('File error: ' + str(ioerr))
-    finally:
-        print('Finished reading the command for file loading.')
+#     except IOError as ioerr: # catch any file errors to prevent crashing of the program
+#         print('File error: ' + str(ioerr))
+#     finally:
+#         print('Finished reading the command for file loading.')
 
