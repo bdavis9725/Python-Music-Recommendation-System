@@ -178,11 +178,8 @@ class Track(Artist, Song, Extras):
     def __repr__(self):
         return f'Artist Name/s: {self.artistname.strip("[]")}, Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
-    def to_dict(self):
+    def to_dict(self): # Extract the relevant features to a dictionary
         return {
-            #'Artist Name': self.artistname,
-            #'Song Name': self.songname,
-            'Music_ID': self.music_ID,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
             'Energy': self.energy,
@@ -193,10 +190,7 @@ class Track(Artist, Song, Extras):
             'Tempo': self.tempo,
             'Valence': self.valence, 
             'Explicit': self.explicit,
-            'Key': self.key,
             'Instrumentalness': self.instrumentalness,
-            'Duration in ms': self.duration_ms,
-            'Release Date': self.release_date,
         }
 
 
@@ -208,6 +202,8 @@ class Track(Artist, Song, Extras):
 def read_File():
     try:
         df_file = pd.read_csv('data.csv', delimiter=',', low_memory=False)
+        #Remove duplicate song entries
+        df_file.drop_duplicates(subset ="name", keep = False, inplace = True) 
         df_file.rename(columns={'mode': 'modal'}, inplace = True)
         
         file_list = []
@@ -256,10 +252,4 @@ def read_File():
         print('File error: ' + str(ioerr))
     finally:
         print('Finished reading the command for file loading.')
-
-
-# In[ ]:
-
-
-
 
