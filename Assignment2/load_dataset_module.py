@@ -209,7 +209,7 @@ class file_loader():
         try:
             df_file = pd.read_csv(self.data, delimiter=',', low_memory=False)
             #Remove duplicate song entries
-            #df_file.drop_duplicates(subset ="name", keep = 'first', inplace = True) 
+            df_file = df_file.drop_duplicates(subset=['artists', 'name'], keep='last')
             df_file.rename(columns={'mode': 'modal'}, inplace = True)
 
             for value in zip(df_file.artists,
