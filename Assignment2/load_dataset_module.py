@@ -203,7 +203,7 @@ def read_File():
     try:
         df_file = pd.read_csv('data.csv', delimiter=',', low_memory=False)
         #Remove duplicate song entries
-        df_file.drop_duplicates(subset ="name", keep = False, inplace = True) 
+        df_file.drop_duplicates(subset ="name", keep = 'first', inplace = True) 
         df_file.rename(columns={'mode': 'modal'}, inplace = True)
         
         file_list = []
