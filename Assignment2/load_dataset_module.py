@@ -197,7 +197,7 @@ class Track(Artist, Song, Extras):
 # In[ ]:
 
 
-class file_loader():
+class File_loader():
     __metaclass__ = IterRegistry
     _registry = []
     
