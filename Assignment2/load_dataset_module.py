@@ -40,7 +40,7 @@ class Artist(object):
         return "Name: % s" % (self.artistname)
         
     def getName(self):
-        return f'Artist Name/s: {self.artistname.strip("[]")}'
+        return f'Artist/s: {self.artistname.strip("[]")}'
     
 #     def __getitem__(self, index):
 #         return self[index]
@@ -176,7 +176,7 @@ class Track(Artist, Song, Extras):
     
     # Override inherited repr so that the output is correct
     def __repr__(self):
-        return f'Artist Name/s: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Artist/s: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def to_dict(self): # Extract the relevant features to a dictionary
         return {
