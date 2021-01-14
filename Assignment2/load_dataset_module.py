@@ -40,7 +40,7 @@ class Artist(object):
         return "Name: % s" % (self.artistname)
         
     def getName(self):
-        return f'Artist Name/s: {self.artistname.strip("[]")}'
+        return f'Artist/s: {self.artistname.strip("[]")}'
     
 #     def __getitem__(self, index):
 #         return self[index]
@@ -93,16 +93,16 @@ class Song(object):
     # Returns object in string format for readability
     def __repr__(self):
         # Allows the ability to print out all names
-        return f'Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
   
     def getFeatures(self):
-        return f'Song Name: {self.songname}, Music ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Song: {self.songname}, Music ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def getComparisonFeatures(self):
         return f'Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def getSongName(self):
-        return f'Song Name: {self.songname}'
+        return f'Song: {self.songname}'
 
 
 # In[ ]:
@@ -176,10 +176,12 @@ class Track(Artist, Song, Extras):
     
     # Override inherited repr so that the output is correct
     def __repr__(self):
-        return f'Artist Name/s: {self.artistname.strip("[]")}, Song Name: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Artist/s: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def to_dict(self): # Extract the relevant features to a dictionary
         return {
+            #'Artist/s': self.artistname,
+            #'Song Name': self.songname,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
             'Energy': self.energy,
@@ -197,7 +199,7 @@ class Track(Artist, Song, Extras):
 # In[ ]:
 
 
-class file_loader():
+class File_loader():
     __metaclass__ = IterRegistry
     _registry = []
     
