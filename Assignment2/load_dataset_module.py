@@ -7,7 +7,6 @@
 
 
 import pandas as pd # Load the library we need
-#import numpy as np
 
 
 # ### Define the classes
@@ -40,7 +39,7 @@ class Artist(object):
         return "Name: % s" % (self.artistname)
         
     def getName(self):
-        return f'Artist/s: {self.artistname.strip("[]")}'
+        return f'Artist: {self.artistname.strip("[]")}'
     
 #     def __getitem__(self, index):
 #         return self[index]
@@ -176,7 +175,7 @@ class Track(Artist, Song, Extras):
     
     # Override inherited repr so that the output is correct
     def __repr__(self):
-        return f'Artist/s: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Artist: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def to_dict(self): # Extract the relevant features to a dictionary
         return {
@@ -210,11 +209,18 @@ class File_loader():
     def read_file(self):
         try:
             df_file = pd.read_csv(self.data, delimiter=',', low_memory=False)
+            
             #Remove duplicate song entries
             df_file = df_file.drop_duplicates(subset=['artists', 'name'], keep='last')
+            
+            # Split the artists by the comma between multiple names
+            artists = df_file.artists.str.split(',')
+            
+            # Take only the first name from each line
+            artists = [artist[0] for artist in artists]
             df_file.rename(columns={'mode': 'modal'}, inplace = True)
 
-            for value in zip(df_file.artists,
+            for value in zip(artists,
                              df_file.name,                          
                              df_file.id, 
                              df_file.acousticness, 
