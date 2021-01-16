@@ -1,688 +1,844 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ### PCP Module 2 - similarity_module
+# ### PCP Assignment 2 Module 2 - similarity_module
 
 # In[ ]:
 
 
-def search_artist(dict_name):
-    try:
-        fName = str(input("Please enter the first name of the artist you want to find: ").capitalize().rstrip())
-        lName = str(input("Please enter the surname of the artist you want to find. At least an Initial entry is required: "                         ).capitalize().rstrip())
-        feature = str(input("Please enter the feature you want to find for the artists' songs: ").capitalize().rstrip())
+from load_dataset_module import Artist, Song, Track, IterRegistry, Extras, File_loader # Classes
+import pandas as pd
+import numpy as np
+import math
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.spatial import distance 
+from numpy.linalg import norm
+from sklearn.metrics.pairwise import manhattan_distances
+from sklearn.neighbors import NearestNeighbors as knn
+from sklearn.preprocessing import MinMaxScaler
+
+# Disable warnings, these are not required for the user to see (might be removed)
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# In[ ]:
+
+
+# Creating logging capabilities
+
+# import logging
+# logging.warning('Watch out!')  # will print a message to the console
+# logging.info('I told you so')  # will not print anything
+
+
+# In[ ]:
+
+
+# song_searcher = File_loader().read_file()
+# music_df = pd.DataFrame.from_records([s.to_dict() for s in song_searcher])
+# music_df.head()
+
+
+# In[ ]:
+
+
+class Searcher(object):
+    __metaclass__ = IterRegistry
+    _registry = []
     
-        # Create empty dictionary and lists for the inputs
-        results_dict = {}
-        results = []
-        result_names = []
-        result_songs = []
-        result_id = []
-        num=0 # Index for printing results
+    def __init__(self, list_name):
+        self.list_name = list_name
         
-        # Loop through the dictionary, extract all matching artist + song values
-        for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
-            if fName + " " + lName in dict_name[i]['Artists']:
-                results.append(dict_name[i][feature]) # Add matching values to assignable lists
-                result_names.append(dict_name[i]['Artists'])
-                result_songs.append(dict_name[i]['Song Name'])
-                result_id.append(i) 
+    def search_artist(self):
+        list_name = self.list_name
+        
+        try:
+            fName = str(input("Please enter the first name of the artist you want to find: ").strip().capitalize())
+            lName = str(input("Please enter the surname of the artist you want to find: ").strip().capitalize())
+    
+            # Create empty lists for the inputs
+            result_names = []
+            result_songs = []
+            result_id = []
+            num = 0 # Index for printing results
+            
+            # Loop through the dictionary, extract all matching artist + song values
+            for i in range(len(list_name)): # range of the whole class-based list
+                if lName != "":  # If the last name entry is not left blank
+                    if fName + " " + lName in list_name[i].getName():
+                        result_names.append(list_name[i].getName())
+                        result_songs.append(list_name[i].getSongName())
+                        result_id.append(i) 
+                else:  # If the artist only has one name e.g. Nirvana
+                    if fName in list_name[i].getName():
+                        result_names.append(list_name[i].getName())
+                        result_songs.append(list_name[i].getSongName())
+                        result_id.append(i) 
                 
-        if len(results) == 0: # If the length of the list above is 0, we found no matches
-            print("Your search returned no results.")
-            return None       # So we will simply return nothing
-        else:
-            # return an assignable dictionary using the First Name and Surname Initial for the indexable ID
-            print("Your search returned {} results.".format(len(results)))
-            output = str(input("Would you like to view results? ").capitalize().rstrip())
-            if output == "Yes":
-                for k in range(0, len(results)):
-                    print("ID: {} | Artists/s: {} | Song: {} | {}: {}".format(result_id[num], result_names[num], result_songs[num], feature, results[num]))
-                    num+=1
+            if len(result_id) == 0: # If the length of the list above is 0, we found no matches
+                print("Your search returned no results.")
             else:
-                print("Search complete.")
-            results_dict[fName + " " + lName[0]] = results
-        
-        return results_dict # return the created nested dictionary
+                # return an assignable dictionary using the First Name and Surname Initial for the indexable ID
+                print("Your search returned {} results.".format(len(result_id)))
+                output = str(input("Would you like to view results? ").strip().capitalize())
+                if output == "Yes":
+                    for k in range(0, len(result_id)):
+                        print("ID: {} | {} | {} | ".format(result_id[num], result_names[num], result_songs[num]))
+                        num+=1
+                else:
+                    print("Search complete.")
+            
+            return result_id  # Return the id to pull details if wanted
     
-    # Error handling for the function is written here
-    except KeyError:
-        return(print("You have entered an incorrect value, please check your entry."))
-    except TypeError:
-        return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
-    except IndexError:
-        return(print("You must enter at least an Initial into the Surname box."))
-
-
-# In[ ]:
-
-
-def search_song(dict_name):
-    try:
-        song_name = input("Please insert the word/s you would like to find in a song: ").capitalize()
-        song_name = song_name.rstrip()   # remove end of input whitespace
-        song_name = song_name.split(' ') # split the words into individual words to detect how many we have
-
-        result_id = []
-        result_names = []
-        result_songs = []
-        num=0 # Index for printing results
+        # Error handling for the function is written here
+        except KeyError:
+            return(print("You have entered an incorrect value, please check your entry."))
+        except TypeError:
+            return(print("You can't enter a number or symbol here, please enter a string dictionary name."))
+        except IndexError:
+            return(print("You must enter at least an Initial into the Surname box."))
         
-        if len(song_name) == 1: # Check if the input is 1 word or many words
-            song_name = ''.join(song_name) # if it is 1 word, reconnect the word through the join command
-            for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
-                if song_name in dict_name[i]['Song Name']:
-                    # Add matching values to assignable lists 
-                    result_id.append(i)      
-                    result_names.append(dict_name[i]['Artists'])
-                    result_songs.append(dict_name[i]['Song Name']) 
-                    
-        else: # Loop the list and match each word with a value
-            for i in range(1, len(dict_name)+1): # range of the whole dictionary +1 as end of dictionary is missed otherwise
-                song_name = [item.capitalize() for item in song_name] # capitalise each string
-                for j in range(1, len(song_name)):
-                    if song_name[j] in dict_name[i]['Song Name']: # search each word for a match
-                        # Add matching values to assignable lists
-                        result_id.append(i)     
-                        result_names.append(dict_name[i]['Artists'])
-                        result_songs.append(dict_name[i]['Song Name'])
+    def search_song(self):
+        list_name = self.list_name
+        
+        try:
+            song_name = input("Please insert the word/s you would like to find in a song: ").capitalize()
+            song_name = song_name.rstrip()   # remove end of input whitespace
+            song_name = song_name.split(' ') # split the words into individual words to detect how many we have
 
-        if len(result_id) == 0: # If the length of the list is 0, we found no matches
-            print("Your search returned no results.")
-        else:
-            print("Your search returned {} results.".format(len(result_id)))
-            output = str(input("Would you like to view results? ").capitalize().rstrip())
-            if output == "Yes":
-                for k in range(0, len(result_id)):
-                    print("ID: {} | Artists/s: {} | Song: {}".format(result_id[num], result_names[num], result_songs[num]))
-                    num+=1
+            result_id = []
+            result_names = []
+            result_songs = []
+            num = 0 # Index for printing results
+        
+            if len(song_name) == 1: # Check if the input is 1 word or many words
+                song_name = ''.join(song_name) # if it is 1 word, reconnect the word through the join command
+                for i in range(0, len(list_name)): # range of the whole class-based list
+                    if song_name in list_name[i].getSongName():
+                        # Add matching values to assignable lists 
+                        result_id.append(i)      
+                        result_names.append(list_name[i].getName())
+                        result_songs.append(list_name[i].getSongName()) 
+                    
+            else: # Loop the list and match each word with a value
+                for i in range(0, len(list_name)): # range of the whole dictionary +1 as end of dictionary is missed otherwise
+                    song_name = [item.capitalize() for item in song_name] # capitalise each string
+                    for j in range(0, len(song_name)):
+                        if song_name[j] in list_name[i].getSongName(): # search each word for a match
+                            # Add matching values to assignable lists
+                            result_id.append(i)     
+                            result_names.append(list_name[i].getName())
+                            result_songs.append(list_name[i].getSongName())
+
+            if len(result_id) == 0: # If the length of the list is 0, we found no matches
+                print("Your search returned no results.")
             else:
-                print("Search complete.")
+                print("Your search returned {} results.".format(len(result_id)))
+                output = str(input("Would you like to view results? ").strip().capitalize())
+                if output == "Yes":
+                    for k in range(0, len(result_id)):
+                        print("ID: {} | {} | {}".format(result_id[num], result_names[num], result_songs[num]))
+                        num+=1
+                else:
+                    print("Search complete.")
                     
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        return(print("You have entered an incorrect value, please check your entry.", keyerror))
-    except TypeError as typeerror:
-        return(print("You can't enter a number or symbol here, please enter a string dictionary name.", typeerror)) 
+        # Error handling for the function is written here
+        except KeyError as keyerror:
+            return(print("You have entered an incorrect value, please check your entry.", keyerror))
+        except TypeError as typeerror:
+            return(print("You can't enter a number or symbol here, please enter a string dictionary name.", typeerror)) 
 
 
 # In[ ]:
 
 
-def join_artist_dict(dict_a, dict_b): # Function to join two lists together, maintaining unique keys
-    try:
-        dict_a = dict_a
-        dict_b = dict_b
-        dict_a.update(dict_b)
-        return dict_a
+class Similarity_metric(object):
+    __metaclass__ = IterRegistry
+    _registry = []
     
-    # Error handling for the function is written here
-    except KeyError:
-        return(print("You have entered an incorrect value, please check your entry."))
-    except TypeError:
-        return(print("The search returned no values, please try another entry."))
-    except AttributeError:
-        print("There was a problem, please check your results for your artist searches.")
-
-
-# ## Euclidean Similarity Function 
-
-# ![image.png](attachment:image.png)
-
-# In[ ]:
-
-
-def euclidean_similarity(dict_name, id1, id2):
-    import math
+    def __init__(self, list_name, value1, value2):
+        self.list_name = list_name
+        self.target = value1
+        self.library = value2
+        
+    # Returns object in string format for readability
+    def __repr__(self):
+        return f'Target: {self.target}, Comparison: {self.library}'
     
-    def feature_select():
-        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
+    def euclidean(self):
+        a = self.target
+        b = self.library
+        return np.linalg.norm(a - b)
+        
+    def manhattan(self):
+        a = self.target
+        b = self.library
+        #return np.abs(a - b) # This works
+        return manhattan_distances([a, b])[1,0]
+        
+    def cosine(self):
+        a = self.target
+        b = self.library
+        return 1 - distance.cosine(a, b)
+
+    def jaccard(self):
+        a = self.target
+        b = self.library
+        return distance.jaccard(a, b)
+    
+    def pearson(self):
+        a = self.target
+        b = self.library
+        return np.corrcoef([a, b])[1,0]
+    
+    def feature_select(self):
+        feature_select = ["Acousticness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence", "Explicit", "Instrumentalness"]
         for number, feature in enumerate(feature_select, start=1):
             print(number, feature) # Present a list of options to the user for feature choice
     
-    try:   
-        dict_name = dict_name
-    
-        if id1 == '': # If the positional argument is entered as '', then ask for an int ID
-            id1 = int(input("Please insert your first id for music features: "))
-        else:
-            id1 = id1
+    def metric_choice(self):
+        id1 = self.target
+        id2 = self.library
         
-        if id2 == '': # If the positional argument is entered as '', then ask for an int ID
-            id2 = int(input("Please insert your second id for music features: "))
-        else:
-            id2 = id2
-                
-        if id1 == id2: # check to make sure the user is not entering the same ID twice
-            print("You can't have the same ID, please choose 2 different IDs.")
-            euclidean_similarity(dict_name, '','')
-        else:
-            print("If you are working with defined artist lists, enter 'Artist'")
-            feature_select()
-            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
-
-            if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features using Euclidean.\n")
-                # take values from the dictionary from the end,to avoid the string values at the beginning
-                feature_list = list(dict_name[id1].values())[-9:] 
-                feature_list2 = list(dict_name[id2].values())[-9:]
-                key_list = str(list(dict_name[id1].keys())[-9:]).split(',') # take the associated key names
-            
-                for i in range(0,9): # Loop through the 9 expected features
-                    for value in feature_list, feature_list2: # take values over the loop and compare them
-                        x = (feature_list[i]) 
-                        y = (feature_list2[i]) 
-                        distance = math.sqrt((x - y) ** 2 ) #one-dimensional euclidean formula
-                    print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
-            
-            else:
-                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
-                    x = []
-                    y = []
-                    
-                    # To avoid issues with math such as sqrt, create 2 new lists and assign all values to those lists
-                    for value in dict_name[id1]:
-                        x.append(value)
-                    for value in dict_name[id2]:
-                        y.append(value)
-                    distance = math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)])) # multi-dimensional euclidean
-                    return(print("Euclidean distance of {} and {}:".format(id1, id2), round(distance, 3)))
-                
-                else: # must be working with default dictionary and values
-                    # Assign our queried features to our x and y variables
-                    x = dict_name[id1][query]
-                    y = dict_name[id2][query]
-                    distance = math.sqrt((x - y) ** 2 ) #one-dimensional euclidean formula   
-                    print("Euclidean Distance of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
-            
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        print("That feature doesn't exist.", keyerror)
-        euclidean_similarity(dict_name,'','')
-    except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.")
-        euclidean_similarity(dict_name,'','')
-    except TypeError as typeerror:
-        print("Invalid type entered.")
-    except IndexError:
-        print("There was a problem, did you enter your dictionary name correctly?")
-    except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0, metric will restart.")
-        euclidean_similarity(dict_name,'','')
-    except AttributeError:
-        print("You can't compare all features of an artist you have defined.")
-        euclidean_similarity(dict_name,'','')
-
-
-# ## Cosine Similarity Function
-
-# ![image.png](attachment:image.png)
-
-# In[ ]:
-
-
-def cosine_similarity(dict_name, id1, id2):
-    import math
-    
-    def feature_select():
-        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
-        for number, feature in enumerate(feature_select, start=1):
-            print(number, feature) # Present a list of options to the user for feature choice
-    
-    def square_rooted(x): # define the sqrt for the cosine function
-        return round(math.sqrt(sum([a*a for a in x])),3)
-    
-    def cosine(x, y): # define the cosine function to avoid re-using code
-        numerator = sum(a*b for a,b in zip(x,y))
-        denominator = square_rooted(x)*square_rooted(y)
-        return round(numerator/float(denominator),3)
-    
-    try:   
-        dict_name = dict_name
-    
-        if id1 == '': # If the positional argument is entered as '', then ask for an int ID
-            id1 = int(input("Please insert your first id for music features: "))
-        else:
-            id1 = id1
-        
-        if id2 == '': # If the positional argument is entered as '', then ask for an int ID
-            id2 = int(input("Please insert your second id for music features: "))
-        else:
-            id2 = id2
-                
-        if id1 == id2: # check to make sure the user is not entering the same ID twice
-            print("You can't have the same ID, please choose 2 different IDs.")
-            cosine_similarity(dict_name, '', '')
-        else:
-            print("If you are working with defined artist lists, enter 'Artist'")
-            feature_select()
-            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
-            if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features using Cosine.\n")
-                # take values from the dictionary from the end,to avoid the string values at the beginning
-                feature_list = list(dict_name[id1].values())[-9:]
-                feature_list2 = list(dict_name[id2].values())[-9:]
-                key_list = str(list(dict_name[id1].keys())[-9:]).split(',') # take the associated key names
-            
-                for i in range(0,9): # Loop through the 9 expected features
-                    for value in feature_list, feature_list2: # take values over the loop and compare them
-                        if i == 5: #divisible by zero issue comes up if this is not present
-                            continue
-                        x = (feature_list[i]) 
-                        y = (feature_list2[i]) 
-                        distance = cosine([x],[y]) # Use the cosine function defined above to get the metric
-                    print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
-            
-            else: 
-                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
-                    x = []
-                    y = []
-                
-                    # To avoid issues with math such as sqrt, create 2 new lists and assign all values to those lists
-                    for value in dict_name[id1]:
-                        x.append(value)
-                    for value in dict_name[id2]:
-                        y.append(value)
-                    
-                    distance = cosine(x,y) # Use the cosine function defined above to get the metric
-                    print("Cosine Similarity of {} and {} is:".format(id1, id2), round(distance, 3))
-                    
-                else: # must be working with default dictionary
-                    # Assign our queried features to our x and y variables
-                    x = dict_name[id1][query] 
-                    y = dict_name[id2][query]
-                
-                    distance = cosine([x],[y]) # Use the cosine function defined above to get the metric
-                    print("Cosine Similarity of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
-    
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        print("That feature doesn't exist.", keyerror)
-        cosine_similarity(dict_name,'','')
-    except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.")
-        cosine_similarity(dict_name,'','')
-    except TypeError as typeerror:
-        print("Invalid type entered.")
-    except IndexError:
-        print("There was a problem, did you enter your dictionary name correctly?")
-    except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0, the metric will restart.")
-        cosine_similarity(dict_name,'','')
-    except AttributeError:
-        print("You can't compare all features of an artist you have defined.")
-        cosine_similarity(dict_name,'','')
-
-
-# ## Pearson Correlation Similarity Function
-
-# ![image.png](attachment:image.png)
-
-# In[ ]:
-
-
-def pearson_similarity(dict_name, id1, id2):
-    import math
-    import numpy as np
-    
-    def feature_select():
-        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
-        for number, feature in enumerate(feature_select, start=1):
-            print(number, feature) # Present a list of options to the user for feature choice
-    
-    try:   
-        dict_name = dict_name
-    
-        if id1 == '': # If the positional argument is entered as '', then ask for an int ID
-            id1 = int(input("Please insert your first id for music features: "))
-        else:
-            id1 = id1
-        
-        if id2 == '': # If the positional argument is entered as '', then ask for an int ID
-            id2 = int(input("Please insert your second id for music features: "))
-        else:
-            id2 = id2
-                
-        if id1 == id2: # check to make sure the user is not entering the same ID twice
-            print("You can't have the same ID, please choose 2 different IDs.")
-            pearson_similarity(dict_name, '', '')
-        else:
-            print("If you are working with defined artist lists, enter 'Artist'")
-            feature_select()
-            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
-            if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features using Pearson.\n")
-                # take values from the dictionary from the end,to avoid the string values at the beginning
-                feature_list = list(dict_name[id1].values())[-9:]
-                feature_list2 = list(dict_name[id2].values())[-9:]
-                key_list = str(list(dict_name[id1].keys())[-9:]).split(',') # take the associated key names
-            
-                for i in range(0,9): # Loop through the 9 expected features
-                    for value in feature_list, feature_list2: # take values over the loop and compare them
-                        if i == 5: #skip popularity
-                            continue
-                        x = (feature_list[i]) 
-                        y = (feature_list2[i]) 
-                        n = len(feature_list) # create our n value, in this case this would have a value of 9
-                        
-                        # creating the correlation formula in rough form
-                        numerator = n*(x + y) - (x * y)
-                        denominator = ((n*(x**2)) - (x)**2) * ((n*(y**2)) - (y**2))
-
-                        # This result won't be accurate
-                        #pearson_corr = (numerator / math.sqrt(denominator))
-                        # Due to issues, numpy correlation will be used instead to get the output
-                        pearson_corr = np.corrcoef([x, y])
-
-                    print(key_list[i].strip('[]').strip(' '), pearson_corr) # print all feature metrics
-            
-            else:
-                # This is not possible unless the two artists 
-                # have the exact same number of songs in the dictionary
-                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
-                    x = []
-                    y = []
-                    
-                    # To avoid issues with math, create 2 new lists and assign all values to those lists
-                    for value in dict_name[id1]:
-                        x.append(value)
-                    for value in dict_name[id2]:
-                        y.append(value)
-     
-                    # Due to issues, numpy correlation will be used instead to get the output
-                    pearson_corr = np.corrcoef(x,y)
-                    return(print("Pearson Correlation of {} and {} is:".format(id1, id2), pearson_corr))
-                
-                else: # must be working with default dictionary and values
-                    # Assign our queried features to our x and y variables
-                    x = dict_name[id1][query]
-                    y = dict_name[id2][query]
-                    n = 1 
-               
-                    # creating the correlation formula in rough form
-                    numerator = n*(x + y) - (x * y)
-                    denominator = ((n*(x**2)) - (x)**2) * ((n*(y**2)) - (y**2))
-                
-                    # There will be an error here, as we will always divide by 0 with a length of 1
-                    #pearson_corr = (numerator / math.sqrt(denominator))
-                    # Due to issues, numpy correlation will be used instead to get the output
-                    pearson_corr = np.corrcoef([x,y])
-                    print("Pearson Correlation of {} for ID {} and ID {} is".format(query, id1, id2), pearson_corr)
-    
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        print("That feature doesn't exist.", keyerror)
-        pearson_similarity(dict_name,'','')
-    except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.")
-    except TypeError as typeerror:
-        print("Invalid type entered.")
-    except IndexError:
-        print("There was a problem, did you enter your dictionary name correctly?")
-    except ZeroDivisionError as zeroerror:
-        print("Sorry, but you cannot divide by 0, the metric will restart.")
-        pearson_similarity(dict_name,'','')
-    except AttributeError:
-        print("You can't compare all features of an artist you have defined.")
-        pearson_similarity(dict_name,'','')
-
-
-# In[ ]:
-
-
-# Code left for analysis, working example with same lengths lists to compare
-
-#x = [5,10, 43, 12, 89, 100, 21, 89, 71]
-#y = [2,4, 12, 13, 43, 54, 65, 77, 100, 1000]
-#n = 10
-#
-#import math
-#
-#sum_xy = []
-#x2 = []
-#y2 = []
-#
-#for num1, num2 in zip(x, y):
-#    sum_xy.append(num1 * num2)
-#sum_xy = sum(sum_xy)
-#
-#numerator = n*(sum_xy) - (sum(x)*sum(y))
-#
-#x2 = [i **2 for i in x]
-#y2 = [i **2 for i in y]
-#
-#denominator = ((n*sum(x2)) - (sum(x)**2)) * ((n*sum(y2)) - (sum(y)**2))
-#print(numerator / math.sqrt(denominator))
-
-
-# ## Jaccard Similarity Function
-
-# J(A, B) = |A∩B| / |A∪B|
-
-# In[ ]:
-
-
-def jaccard_similarity(dict_name, id1, id2):
-    import math
-    
-    def feature_select():
-        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
-        for number, feature in enumerate(feature_select, start=1):
-            print(number, feature) # Present a list of options to the user for feature choice
-    
-    def jaccard(x, y): # define the jaccard function to avoid re-using code
-        intersection = len(list(set(x).intersection(y)))
-        union = (len(x) + len(y)) - intersection
-        return float(intersection) / union
-    
-    try:   
-        dict_name = dict_name
-    
-        if id1 == '': # If the positional argument is entered as '', then ask for an int ID
-            id1 = int(input("Please insert your first id for music features: "))
-        else:
-            id1 = id1
-        
-        if id2 == '': # If the positional argument is entered as '', then ask for an int ID
-            id2 = int(input("Please insert your second id for music features: "))
-        else:
-            id2 = id2
-                
-        if id1 == id2: # check to make sure the user is not entering the same ID twice
-            print("You can't have the same ID, please choose 2 different IDs.")
-            jaccard_similarity(dict_name, '', '')
-        else:
-            print("If you are working with defined artist lists, enter 'Artist'")
-            feature_select()
-            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
-            if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features using Jaccard.\n")
-                # take values from the dictionary from the end,to avoid the string values at the beginning
-                feature_list = list(dict_name[id1].values())[-9:]
-                feature_list2 = list(dict_name[id2].values())[-9:]
-                key_list = str(list(dict_name[id1].keys())[-9:]).split(',') # take the associated key names
-            
-                for i in range(0,9): # Loop through the 9 expected features
-                    for value in feature_list, feature_list2: # take values over the loop and compare them
-                        x = (feature_list[i]) 
-                        y = (feature_list2[i]) 
-                        distance = jaccard([x],[y]) # Use the jaccard function defined above to get the metric
-                        # print all feature metrics
-                    print(key_list[i].strip('[]').strip(' '), round(distance, 3))
-                    #print("Jaccard Distance:  ", key_list[i].strip('[]').strip(' '), (1 - round(distance, 3)))
-            
-            else:
-                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
-                    # Assign each artist to a different value of x or y
-                    x = dict_name[id1]
-                    y = dict_name[id2]
-                        
-                    distance = jaccard(x,y) # Use the jaccard function defined above to get the metric
-                    return(print("Jaccard Similarity of {} and {}:".format(id1, id2), round(distance,3)))
-                
-                else: # must be working with default dictionary and values
-                    # Assign our queried features to our x and y variables
-                    x = dict_name[id1][query]
-                    y = dict_name[id2][query]
-                    
-                    distance = jaccard([x],[y]) # Use the jaccard function defined above to get the metric
-                    print("Jaccard Similarity of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
-                    #print("Jaccard Distance of", query, "is", (1 - round(distance, 3)))
-    
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        print("That feature doesn't exist.", keyerror)
-        jaccard_similarity(dict_name,'','')
-    except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.")
-        jaccard_similarity(dict_name,'','')
-    except TypeError as typeerror:
-        print("Invalid type entered.")
-    except IndexError:
-        print("There was a problem, did you enter your dictionary name correctly?")
-    except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0, the metric will restart.")
-        jaccard_similarity(dict_name,'','')
-    except AttributeError:
-        print("You can't compare all features of an artist you have defined.")
-        jaccard_similarity(dict_name,'','')
-
-
-# ## Manhattan Similarity Function
-
-# ![image.png](attachment:image.png)
-
-# In[ ]:
-
-
-def manhattan_similarity(dict_name, id1, id2):
-    import math
-    
-    def feature_select():
-        feature_select = ["Accoustiness", "Danceability", "Energy", "Liveness", "Loudness", "Popularity", "Speechiness", "Tempo", "Valence"]
-        for number, feature in enumerate(feature_select, start=1):
-            print(number, feature) # Present a list of options to the user for feature choice
-    
-    try:   
-        dict_name = dict_name
-    
-        if id1 == '': # If the positional argument is entered as '', then ask for an int ID
-            id1 = int(input("Please insert your first id for music features: "))
-        else:
-            id1 = id1
-        
-        if id2 == '': # If the positional argument is entered as '', then ask for an int ID
-            id2 = int(input("Please insert your second id for music features: "))
-        else:
-            id2 = id2
-                
-        if id1 == id2: # check to make sure the user is not entering the same ID twice
-            print("You can't have the same ID, please choose 2 different IDs.")
-            manhattan_similarity(dict_name, '', '')
-        else:
-            print("If you are working with defined artist lists, enter 'Artist'")
-            feature_select()
-            query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").capitalize().rstrip()
-            if query == '' or query == "No".capitalize(): # if query entry is no or left empty, go here
-                print("Comparing all respective features using Manhattan.\n")
-                # take values from the dictionary from the end,to avoid the string values at the beginning
-                feature_list = list(dict_name[id1].values())[-9:]
-                feature_list2 = list(dict_name[id2].values())[-9:]
-                key_list = str(list(dict_name[id1].keys())[-9:]).split(',') # take the associated key names
-            
-                for i in range(0,9): # Loop through the 9 expected features
-                    for value in feature_list, feature_list2: # take values over the loop and compare them
-                        x = (feature_list[i]) 
-                        y = (feature_list2[i]) 
-                        distance = abs(x - y) #one-dimensional manhattan
-                    print(key_list[i].strip('[]').strip(' '), round(distance, 3)) # print all feature metrics
-            
-            else:
-                if query == 'Artist' and len(dict_name) == 2: # must be working with chosen artists
-                    # Assign each artist to a different value of x or y
-                    x = dict_name[id1]
-                    y = dict_name[id2]
-                    
-                    distance = sum(abs(a - b) for a, b in zip(x, y)) # Multi-dimensional manhattan
-                    return(print("Manhattan Distance of {} and {}:".format(id1, id2), round(distance,3)))
-                
-                else: # must be working with default dictionary and values
-                    # Assign our queried features to our x and y variables
-                    x = dict_name[id1][query]
-                    y = dict_name[id2][query]
-                
-                distance = abs(x - y) #one-dimensional manhattan  
-                print("Manhattan Distance of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
-    
-    # Error handling for the function is written here
-    except KeyError as keyerror:
-        print("That feature doesn't exist.", keyerror)
-        manhattan_similarity(dict_name,'','')
-    except ValueError as valueerror:
-        print("Your entry is invalid, please make sure your entry was the correct format.")
-    except TypeError as typeerror:
-        print("Invalid type entered.")
-    except IndexError:
-        print("There was a problem, did you enter your dictionary name correctly?")
-    except ZeroDivisionError:
-        print("Sorry, but you cannot divide by 0, the metric will restart.")
-        manhattan_similarity(dict_name,'','')
-    except AttributeError:
-        print("You can't compare all features of an artist you have defined.")
-        manhattan_similarity(dict_name,'','')
-
-
-# ## Functions for the Metric choices
-
-# In[ ]:
-
-
-# Function for metric selection
-def metric_choice(dict_name):
-    if len(dict_name) == 2: # Check the length, only the artist defined dictionary is length of 2
-        metric = int(input("Which metric would you like to use from the selection: Enter the number: "))
-        key_list = str(list(dict_name.keys())).split(',') # take the associated key names
-        key_list = [key.strip('[]').strip(' ') for key in key_list]
-        key1 = ''.join(map(str, key_list[0])).strip("''") # Get the first key
-        key2 = ''.join(map(str, key_list[1])).strip("''") # Get the second key
-        if metric == 1:
-            euclidean_similarity(dict_name, key1, key2)
-        elif metric == 2:
-            cosine_similarity(dict_name, key1, key2)
-        elif metric == 3:
-            pearson_similarity(dict_name, key1, key2)
-        elif metric == 4:
-            jaccard_similarity(dict_name, key1, key2)
-        elif metric == 5:
-            manhattan_similarity(dict_name, key1, key2)
-        else:
-            print("Your selection is incorrect.")
-            if metric == '': # If entry is blank, end the program
-                print("You entered nothing, the program will end.")
-            else:
-                metric_choice(dict_name) # Restart the metric choice
-        
-    else:
         metric = int(input("Which metric would you like to use from the selection: Enter the number: "))
         if metric == 1:
-            euclidean_similarity(dict_name, '', '')
+            return Similarity_metric(self.list_name, id1, id2).euclidean()
         elif metric == 2:
-            cosine_similarity(dict_name, '', '')
+            return Similarity_metric(self.list_name, id1, id2).cosine()
         elif metric == 3:
-            pearson_similarity(dict_name, '', '')
+            return np.corrcoef([id1, id2]) # Issues with Pearson, do it manually
         elif metric == 4:
-            jaccard_similarity(dict_name, '', '')
+            return Similarity_metric(self.list_name, id1, id2).jaccard()
         elif metric == 5:
-            manhattan_similarity(dict_name, '', '')
+            return Similarity_metric(self.list_name, [id1], [id2]).manhattan()
         else:
-            print("Your selection is incorrect.")
-            if metric == '': # If entry is blank, end the program
-                print("You entered nothing, the program will end.")
+            print("Your selection is incorrect. Defaulting to Euclidean.")
+            return Similarity_metric(self.list_name, id1, id2).euclidean()
+    
+    def metric_selection(self):
+        metric_select = ["Euclidean", "Cosine", "Pearson", "Jaccard", "Manhattan"]
+        for number, metric in enumerate(metric_select, start=1):
+            print(number, metric) # Present a list of options to the user for metric choice 
+
+
+# In[ ]:
+
+
+# Part 1 Code is here
+class Comparison(Similarity_metric):
+    __metaclass__ = IterRegistry
+    _registry = []
+    
+    def __init__(self, list_name, id1, id2):
+        self.list_name = list_name
+        self.target = id1
+        self.library = id2
+
+    def measure_feature(self):
+        list_name = self.list_name
+        id1 = self.target
+        id2 = self.library
+        
+        try:
+            #id1 = id1
+            #id2 = id2
+            id1 = int(input("Please insert your first id for music features: "))
+            id2 = int(input("Please insert your second id for music features: "))
+
+            if id1 == id2: # check to see if the IDs match
+                print("Similarity measure for ID {} and ID {} is 1".format(id1, id2))
             else:
-                metric_choice(dict_name) # Restart the metric choice
+                Comparison(list_name, id1, id2).feature_select()
+                query = input("Which feature do you want to use for comparison? Enter the feature name or enter 'No' to compare all features. ").strip().capitalize()
+
+                if query == '' or query == "No".strip().capitalize(): # if query entry is no or left empty, go here
+                    print("Comparing all respective features. \n")
+                    Comparison(list_name, id1, id2).metric_selection()
+                    response = int(input("Which metric would you like to use from the selection: Enter the number: "))
+                    # take values from the dictionary from the end,to avoid the string values at the beginning
+                    feature_list = list(list_name.iloc[id1])
+                    feature_list2 = list(list_name.iloc[id2])
+                    column_list = [str(i) for i in list_name] # take the associated column names
+            
+                    for i in range(0,11): # Loop through the 11 expected features
+                        # take values over the loop and compare them
+                        for value in feature_list, feature_list2: 
+                            x = (feature_list[i])
+                            y = (feature_list2[i])
+                            if response == 1:
+                                distance = Comparison(list_name, x, y).euclidean()
+                            elif response == 2:
+                                distance = Comparison(list_name, x, y).cosine()
+                            elif response == 3: # Issues with Pearson, do it manually
+                                distance = np.corrcoef([x, y])
+                            elif response == 4:
+                                distance = Comparison(list_name, x, y).jaccard()
+                            else: # Response is 5
+                                distance = Comparison(list_name, [x],[y]).manhattan()
+
+                        print(column_list[i] + ':', round(distance, 3)) # print all feature metrics
+                else:
+                    x = list_name[query][id1]
+                    y = list_name[query][id2]
+                    Comparison(list_name, id1, id2).metric_selection()
+                    distance = Comparison(list_name, x, y).metric_choice() 
+                    print("The Similarity of {} for ID {} and ID {} is".format(query, id1, id2), round(distance, 3))
+       
+        except IndexError:
+            print("The ID you entered was too large, please enter a value between 0 and 156608")
+        except KeyError as keyerror:
+            print("That feature doesn't exist.", keyerror)
+            Comparison(list_name, '','').measure_feature()
+        except ValueError:
+            print("Your entry is invalid, please make sure your entry was the correct format.")
+            Comparison(list_name, '','').measure_feature()
+        except TypeError:
+            print("Invalid type entered.")
+        except ZeroDivisionError:
+            print("Sorry, but you cannot divide by 0, metric will restart.")
+            Comparison(list_name, '','').measure_feature()
+        except AttributeError as attrerror:
+            print(attrerror)
+            Comparison(list_name, '','').measure_feature()
+
+
+# In[ ]:
+
+
+class Recommendation(Similarity_metric):
+    
+    def __init__(self, list_name, class_list):
+        self.list_name = list_name
+        self.class_list = class_list
+        
+    def metric_choice(self):
+        metric = int(input("Which metric would you like to use from the selection: Enter the number: "))
+        if metric == 1:
+            return 1
+        elif metric == 2:
+            return 2
+        elif metric == 3:
+            return 3
+        elif metric == 4:
+            return 4
+        elif metric == 5:
+            return 5
+        else:
+            print("Your selection is incorrect. Defaulting to Euclidean.")
+            return 1 
+
+    def get_artist_recommendation(self):
+        try:
+            list_name = self.list_name
+            class_list = self.class_list
+            scaler = MinMaxScaler() # To normalise the values for the engine
+        
+            # Define needed variables
+            results = []
+            id_num = int(input("Please enter the ID number of an artist: "))
+            j = 0
+            #recom_artists = [] # a set will remove duplicates
+        
+            Recommendation(list_name, class_list).metric_selection()
+            response = Recommendation(list_name, class_list).metric_choice()
+            n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
+            if n % 5 == 0 and n != 0:
+                # Create a scaler transformed copy of the dataframe
+                copy_df = scaler.fit_transform(list_name) 
+            
+                # Assign the target
+                target = copy_df[id_num]  
+            
+                # Remove the entered value from the dataframe using 'drop'
+                list_name = list_name.drop([id_num])
+            
+                # Apply a scalar transform to the dataframe
+                list_name = scaler.fit_transform(list_name) 
                 
-def metric_selection():
-    metric_select = ["Euclidean", "Cosine", "Pearson", "Jaccard", "Manhattan"]
-    for number, metric in enumerate(metric_select, start=1):
-        print(number, metric) # Present a list of options to the user for metric choice                
+                # Loop to get the similarity score for each song against the target
+                for i in range(len(list_name)):
+                    compare = list_name[i]
+                    if response == 1:
+                            metric_inUse = Similarity_metric(list_name, target, compare).euclidean()
+                    elif response == 2:
+                            metric_inUse = Similarity_metric(list_name, target, compare).cosine()
+                    elif response == 3: 
+                            metric_inUse = Similarity_metric(list_name, target, compare).pearson()
+                    elif response == 4:
+                            metric_inUse = Similarity_metric(list_name, target, compare).jaccard()
+                    else: # Response is 5
+                        metric_inUse = Similarity_metric(list_name, target, compare).manhattan()
+                
+                    results.append(metric_inUse)
+
+                if response == 1 or response == 4 or response == 5:
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=False)
+                else:
+                    # Sort the results, if cosine or pearson we need to reverse these results
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=True)
+    
+                # Print the chosen artist to the user
+                print('Your Chosen '+ class_list[id_num].getName())
+                print('The {} most similar artists to your chosen artist are: '.format(n))
+
+                # Print the n recommendations for the user
+                for element in sorted_results:
+                    # Skip if the artist name is the same as the target
+                    if class_list[element].getName() == class_list[id_num].getName():
+                        continue
+                    
+                    print(class_list[element].getName())
+                    j += 1
+                    if j >= n:
+                        break
+            else:
+                print("Please select an n value as a multiple of 5. Entry cannot be 0.")
+                Recommendation(list_name, class_list).get_artist_recommendation()
+                
+        except IndexError:
+            print("The ID you entered was too large, please enter a value between 0 and 156608")
+            Recommendation(list_name, class_list).get_artist_recommendation()
+        except ValueError:
+            print("Your entry is invalid, please make sure your entry was the correct format.")
+            Recommendation(list_name, class_list).get_artist_recommendation()
+        except TypeError:
+            print("Invalid type entered.")
+            Recommendation(list_name, class_list).get_artist_recommendation()
+    
+    def get_song_recommendation(self):
+        try:
+            list_name = self.list_name
+            class_list = self.class_list
+            scaler = MinMaxScaler()
+        
+            # Define needed variables
+            results = []
+            id_num = int(input("Please enter the ID number of a song: "))
+            j = 0
+        
+            Recommendation(list_name, class_list).metric_selection()
+            response = Recommendation(list_name, class_list).metric_choice()
+            n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
+            if n % 5 == 0 and n != 0:
+                # Create a scaler transformed copy of the dataframe
+                copy_df = scaler.fit_transform(list_name) 
+                
+                # Assign the target
+                target = copy_df[id_num]  
+            
+                # Remove the entered value from the dataframe using 'drop'
+                list_name = list_name.drop([id_num])
+            
+                # Apply a scalar transform to the dataframe
+                list_name = scaler.fit_transform(list_name)
+                
+                # Loop to get the similarity score for each song against the target
+                for i in range(len(list_name)):
+                    compare = list_name[i]
+                    if response == 1:
+                            metric_inUse = Similarity_metric(list_name, target, compare).euclidean()
+                    elif response == 2:
+                            metric_inUse = Similarity_metric(list_name, target, compare).cosine()
+                    elif response == 3: 
+                            metric_inUse = Similarity_metric(list_name, target, compare).pearson()
+                    elif response == 4:
+                            metric_inUse = Similarity_metric(list_name, target, compare).jaccard()
+                    else: # Response is 5
+                        metric_inUse = Similarity_metric(list_name, target, compare).manhattan()
+            
+                    results.append(metric_inUse)
+
+                if response == 1 or response == 4 or response == 5:
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=False)
+                else:
+                    # Sort the results, if cosine or pearson we need to reverse these results
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=True)
+    
+                # Print the chosen artist to the user
+                print('Your Chosen '+ class_list[id_num].getSongName())
+                print('The {} most similar songs to your song are: '.format(n))
+    
+                # Print the n recommendations for the user
+                for element in sorted_results:
+                    print(class_list[element].getSongName(), "by", class_list[element].getName())
+                    j += 1
+                    if j >= n:
+                        break
+            else:
+                print("Please select an n value as a multiple of 5. Entry cannot be 0.")
+                Recommendation(list_name, class_list).get_song_recommendation()    
+    
+        except IndexError:
+            print("The ID you entered was too large, please enter a value between 0 and 156608")
+            Recommendation(list_name, class_list).get_song_recommendation()
+        except ValueError:
+            print("Your entry is invalid, please make sure your entry was the correct format.")
+            Recommendation(list_name, class_list).get_song_recommendation()
+        except TypeError:
+            print("Invalid type entered.")
+            Recommendation(list_name, class_list).get_song_recommendation()
+    
+    def get_target_recommendation(self):
+        try:
+            list_name = self.list_name
+            class_list = self.class_list
+            scaler = MinMaxScaler()
+
+            # Define needed variables
+            results = []
+            id_num = int(input("Please enter the ID number of the artist: "))
+            j = 0
+
+            Recommendation(list_name, class_list).metric_selection()
+            response = Recommendation(list_name, class_list).metric_choice()
+            n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
+            if n % 5 == 0 and n != 0:
+                # Create a scaler transformed copy of the dataframe
+                copy_df = scaler.fit_transform(list_name) 
+
+                # Assign the target
+                target = copy_df[id_num]  
+
+                # Remove the entered value from the dataframe using 'drop'
+                list_name = list_name.drop([id_num])
+
+                # Apply a scalar transform to the dataframe
+                list_name = scaler.fit_transform(list_name) 
+
+                # Loop to get the similarity score for each song against the target
+                for i in range(len(list_name)):
+                    compare = list_name[i]
+                    if response == 1:
+                            metric_inUse = Similarity_metric(list_name, target, compare).euclidean()
+                    elif response == 2:
+                            metric_inUse = Similarity_metric(list_name, target, compare).cosine()
+                    elif response == 3: # Issues with Pearson, do it manually
+                            metric_inUse = Similarity_metric(list_name, target, compare).pearson()
+                    elif response == 4:
+                            metric_inUse = Similarity_metric(list_name, target, compare).jaccard()
+                    else: # Response is 5
+                        metric_inUse = Similarity_metric(list_name, target, compare).manhattan()
+
+                    results.append(metric_inUse)
+
+                if response == 1 or response == 4 or response == 5:
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=False)
+                else:
+                    # Sort the results, if cosine or pearson we need to reverse these results
+                    sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=True)
+
+                # Print the chosen artist to the user
+                print('Your Chosen '+ class_list[id_num].getName())
+                print('The {} most similar Tracks to your Artist are: '.format(n))
+
+                # Print the n recommendations for the user
+                for element in sorted_results:
+                    print(class_list[element].getSongName(), "by", class_list[element].getName())
+                    j += 1
+                    if j >= n:
+                        break
+            else:
+                print("Please select an n value as a multiple of 5. Entry cannot be 0.")
+                Recommendation(list_name, class_list).get_target_recommendation()
+                
+        except IndexError:
+            print("The ID you entered was too large, please enter a value between 0 and 156608")
+            Recommendation(list_name, class_list).get_target_recommendation()
+        except ValueError:
+            print("Your entry is invalid, please make sure your entry was the correct format.")
+            Recommendation(list_name, class_list).get_target_recommendation()
+        except TypeError:
+            print("Invalid type entered.")
+            Recommendation(list_name, class_list).get_target_recommendation()
+
+    def get_knn_recommendation(self):
+        try:
+            list_name = self.list_name
+            class_list = self.class_list
+            scaler = MinMaxScaler()
+
+            # Define needed variables
+            results = []
+            id_num = int(input("Please enter the ID number of the artist: "))
+            j = 0
+
+            Recommendation(list_name, class_list).metric_selection()
+            response = Recommendation(list_name, class_list).metric_choice()
+            n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
+            if n % 5 == 0 and n != 0:
+                # Create a scaler transformed copy of the dataframe
+                copy_df = scaler.fit_transform(list_name) 
+
+                # Assign the target
+                target = copy_df[id_num]  
+                target = target.reshape(1,-1)
+
+                # Remove the entered value from the dataframe using 'drop'
+                list_name = list_name.drop([id_num])
+
+                # Apply a scalar transform to the dataframe
+                list_name = scaler.fit_transform(list_name) 
+
+                # The metric choice decides which metric is used for the KNN
+                if response == 1:
+                    chosen_metric = "euclidean"
+                elif response == 2:
+                    chosen_metric = "cosine"
+                elif response == 3: 
+                    chosen_metric = "correlation"
+                elif response == 4:
+                    chosen_metric = "jaccard"
+                else: # Response is 5
+                    chosen_metric = "manhattan"
+
+                # Print the chosen artist to the user
+                print('Your Chosen '+ class_list[id_num].getName())
+                print('The {} most similar Tracks to your Artist are: '.format(n))
+
+                # Print n results to the user
+                neigh = knn(metric = chosen_metric, n_neighbors = n, n_jobs=1)
+                neigh.fit(list_name)   
+                knn_result = neigh.kneighbors(target, return_distance=False)
+                knn_result = knn_result.flatten()
+                for element in knn_result:
+                    print(class_list[element].getName(), class_list[element].getSongName())
+
+            else:
+                print("Please select an n value as a multiple of 5. Entry cannot be 0.")
+                Recommendation(list_name, class_list).get_knn_recommendation()    
+            
+        except IndexError:
+            print("The ID you entered was too large, please enter a value between 0 and 156608")
+            Recommendation(list_name, class_list).get_knn_recommendation()
+        except ValueError:
+            print("Your entry is invalid, please make sure your entry was the correct format.")
+            Recommendation(list_name, class_list).get_knn_recommendation()
+        except TypeError:
+            print("Invalid type entered.")
+            Recommendation(list_name, class_list).get_knn_recommendation()
+
+
+# In[ ]:
+
+
+# new = Recommendation(music_df, song_searcher)
+# new.get_artist_recommendation()
+
+
+# In[ ]:
+
+
+# new = Recommendation(music_df, song_searcher)
+# new.get_knn_recommendation()
+
+
+# In[ ]:
+
+
+# new = Recommendation(music_df, song_searcher)
+# new.get_target_recommendation()
+
+
+# In[ ]:
+
+
+# new = Recommendation(music_df, song_searcher).get_song_recommendation()
+
+
+# In[ ]:
+
+
+# %%time
+
+# from scipy.spatial.distance import cdist
+
+# music_df = pd.DataFrame.from_records([s.to_dict() for s in song_searcher])
+
+# results = []
+# id_num = 12310
+# #i = 0
+
+# #----------This section needs to be added to the methods---DONE-------#
+# #---------------------------------------------------------------------#
+# copy_df = np.array(music_df)
+
+# target = copy_df[id_num]
+
+# music_df = music_df.drop([id_num])
+
+# music_df = np.array(music_df)
+# #---------------------------------------------------------------------#
+
+# #y = cdist([target], music_df, 'euclidean')
+
+# for i in range(len(music_df)):
+#     compare = music_df[i]
+#     results.append(Similarity_metric(music_df, target, compare).euclidean())
+
+# results = [i.round(5) for i in results]
+
+# sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=False) #cosine and pearson need reverse true
+# #sorted_results.pop(0) #Drop the first value as we don't need it
+# sorted_results[0:10]
+
+# j = 1
+# n = 10
+# final = []
+
+# print('Your Chosen Artist/s:', song_searcher[id_num].getName())
+# print('The {} most similar Tracks to your Artist are: '.format(n))
+
+# for element in sorted_results:
+#     print(element, song_searcher[element].getName(), song_searcher[element].getSongName(), ', Score:', results[element])
+#     j += 1
+#     if j > n:
+#         break
+
+
+# In[ ]:
+
+
+# music_df.describe()
+
+
+# In[ ]:
+
+
+# Testing out 9 feature values vs 9 feature values using the metrics
+# Doesn't work is music_df hasn't been transformed yet
+
+# id_num = 30
+
+# one = music_df[id_num]
+# two = music_df[90000]
+
+# new_entry = Similarity_metric(music_df, one,two) 
+# print(new_entry.euclidean())
+# print(new_entry.cosine())
+# print(new_entry.pearson())
+# print(new_entry.jaccard())
+# print(new_entry.manhattan())
+# print(one)
+# print(two)
+
+# one = np.sum(one)
+# two = np.sum(two)
+
+
+# ## Part 3 - KNN Recommendation
+
+# In[ ]:
+
+
+# #%%time
+
+# scaler = MinMaxScaler()
+# music_df = pd.DataFrame.from_records([s.to_dict() for s in song_searcher])
+
+# results = []
+# id_num = 400
+# i = 0
+
+# copy_df = scaler.fit_transform(music_df)
+
+# target = copy_df[id_num]
+
+# music_df = music_df.drop([id_num])
+
+# music_df = scaler.fit_transform(music_df)
+
+# for i in range(len(music_df)):
+#     compare = music_df[i]
+#     results.append(Similarity_metric(music_df, target, compare).pearson())
+#     #i += 1 
+
+# results = [i for i in results]
+
+# sorted_results = sorted(range(len(results)), key=lambda x: results[x], reverse=True) #cosine and pearson need reverse true
+# first_ten = sorted_results[0:10]
+
+# sim_result = []
+# sim_result.append(first_ten)
+
+
+# In[ ]:
+
+
+# sim_result = np.array(sim_result)
+# sim_result = sim_result.flatten()
+
+
+# In[ ]:
+
+
+# id_num = 400
+
+# scaler = MinMaxScaler()
+# music_df = pd.DataFrame.from_records([s.to_dict() for s in song_searcher])
+
+# copy_df = scaler.fit_transform(music_df)
+
+# target = copy_df[id_num]
+# target = target.reshape(1,-1)
+
+# music_df = music_df.drop([id_num])
+
+# music_df = scaler.fit_transform(music_df)
+
+# #music_df = np.delete(music_df, target)
+
+# neigh = knn(metric='correlation', n_neighbors=10, n_jobs=1)
+# neigh.fit(music_df)
+
+# knn_result = neigh.kneighbors(target, return_distance=False) 
+# knn_result = knn_result.flatten()
+# for element in knn_result:
+#     print(song_searcher[element].getName())
+
+
+# In[ ]:
+
+
+# print(knn_result)
+# print(sim_result)
+
+# acc = accuracy_score(knn_result, sim_result)
+# print("Accuracy is %0.2f" % acc)
+
+# print(mse(knn_result, sim_result))
+# print(mae(knn_result, sim_result))
+
+
+# ## Evaluating the Metrics
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 

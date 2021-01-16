@@ -179,7 +179,7 @@ class Track(Artist, Song, Extras):
     
     def to_dict(self): # Extract the relevant features to a dictionary
         return {
-            #'Artist/s': self.artistname,
+            #'Artist': self.artistname,
             #'Song Name': self.songname,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
