@@ -37,8 +37,8 @@ class Searcher(object):
         list_name = self.list_name
         
         try:
-            fName = str(input("Please enter the first name of the artist you want to find: ").strip().capitalize())
-            lName = str(input("Please enter the surname of the artist you want to find: ").strip().capitalize())
+            fName = str(input("Please enter the first name of the artist you want to find. Please start with a capital letter: ").strip())
+            lName = str(input("Please enter the surname of the artist you want to find. Please start with a capital letter: ").strip())
     
             # Create empty lists for the inputs
             result_names = []
