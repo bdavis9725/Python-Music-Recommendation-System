@@ -157,7 +157,6 @@ class Similarity_metric(object):
     def manhattan(self):
         a = self.target
         b = self.library
-        #return np.abs(a - b) # This works
         return manhattan_distances([a, b])[1,0]
         
     def cosine(self):
@@ -315,7 +314,7 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            scaler = MinMaxScaler() # To normalise the values for the engine
+            #scaler = MinMaxScaler() # To normalise the values for the engine
         
             # Define needed variables
             results = []
@@ -327,17 +326,17 @@ class Recommendation(Similarity_metric):
             response = Recommendation(list_name, class_list).metric_choice()
             n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
             if n % 5 == 0 and n != 0:
-                # Create a scaler transformed copy of the dataframe
-                copy_df = scaler.fit_transform(list_name) 
-            
+                # Create an array copy of the dataframe
+                copy_df = np.array(list_name) 
+
                 # Assign the target
                 target = copy_df[id_num]  
-            
+
                 # Remove the entered value from the dataframe using 'drop'
                 list_name = list_name.drop([id_num])
-            
-                # Apply a scalar transform to the dataframe
-                list_name = scaler.fit_transform(list_name) 
+
+                # Apply an array transform to the dataframe
+                list_name = np.array(list_name) 
                 
                 # Loop to get the similarity score for each song against the target
                 for i in range(len(list_name)):
@@ -393,7 +392,7 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            scaler = MinMaxScaler()
+            #scaler = MinMaxScaler()
         
             # Define needed variables
             results = []
@@ -404,17 +403,17 @@ class Recommendation(Similarity_metric):
             response = Recommendation(list_name, class_list).metric_choice()
             n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
             if n % 5 == 0 and n != 0:
-                # Create a scaler transformed copy of the dataframe
-                copy_df = scaler.fit_transform(list_name) 
-                
+                # Create an array copy of the dataframe
+                copy_df = np.array(list_name) 
+
                 # Assign the target
                 target = copy_df[id_num]  
-            
+
                 # Remove the entered value from the dataframe using 'drop'
                 list_name = list_name.drop([id_num])
-            
-                # Apply a scalar transform to the dataframe
-                list_name = scaler.fit_transform(list_name)
+
+                # Apply an array transform to the dataframe
+                list_name = np.array(list_name) 
                 
                 # Loop to get the similarity score for each song against the target
                 for i in range(len(list_name)):
@@ -466,7 +465,7 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            scaler = MinMaxScaler()
+            #scaler = MinMaxScaler()
 
             # Define needed variables
             results = []
@@ -477,8 +476,8 @@ class Recommendation(Similarity_metric):
             response = Recommendation(list_name, class_list).metric_choice()
             n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
             if n % 5 == 0 and n != 0:
-                # Create a scaler transformed copy of the dataframe
-                copy_df = scaler.fit_transform(list_name) 
+                # Create an array copy of the dataframe
+                copy_df = np.array(list_name) 
 
                 # Assign the target
                 target = copy_df[id_num]  
@@ -486,8 +485,8 @@ class Recommendation(Similarity_metric):
                 # Remove the entered value from the dataframe using 'drop'
                 list_name = list_name.drop([id_num])
 
-                # Apply a scalar transform to the dataframe
-                list_name = scaler.fit_transform(list_name) 
+                # Apply an array transform to the dataframe
+                list_name = np.array(list_name) 
 
                 # Loop to get the similarity score for each song against the target
                 for i in range(len(list_name)):
@@ -539,7 +538,7 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            scaler = MinMaxScaler()
+            #scaler = MinMaxScaler()
 
             # Define needed variables
             results = []
@@ -550,8 +549,8 @@ class Recommendation(Similarity_metric):
             response = Recommendation(list_name, class_list).metric_choice()
             n = int(input("Please specify how many recommendations you want as a multiple of 5: "))
             if n % 5 == 0 and n != 0:
-                # Create a scaler transformed copy of the dataframe
-                copy_df = scaler.fit_transform(list_name) 
+                # Create an array copy of the dataframe
+                copy_df = np.array(list_name) 
 
                 # Assign the target
                 target = copy_df[id_num]  
@@ -560,8 +559,8 @@ class Recommendation(Similarity_metric):
                 # Remove the entered value from the dataframe using 'drop'
                 list_name = list_name.drop([id_num])
 
-                # Apply a scalar transform to the dataframe
-                list_name = scaler.fit_transform(list_name) 
+                # Apply an array transform to the dataframe
+                list_name = np.array(list_name) 
 
                 # The metric choice decides which metric is used for the KNN
                 if response == 1:
