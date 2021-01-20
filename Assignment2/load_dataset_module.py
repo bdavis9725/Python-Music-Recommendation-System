@@ -28,13 +28,6 @@ class Artist(object):
     def getName(self):
         return f'Artist: {self.artistname.strip("[]")}'
     
-#     def __getitem__(self, index):
-#         return self[index]
-#         print(self[index])
-    
-    def __index__(self):
-        return self.artistname
-    
     def setName(self):
         pass
 
