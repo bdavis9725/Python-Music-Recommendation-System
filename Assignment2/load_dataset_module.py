@@ -3,26 +3,12 @@
 
 # ### PCP Assignment 2 Module 1 - load_dataset_module
 
-# In[ ]:
-
-
 import pandas as pd # Load the library we need
-#import numpy as np
-
-
-# ### Define the classes
-
-# In[ ]:
-
 
 # Use a metaclass to make classes iterable later
 class IterRegistry(type):
     def __iter__(cls):
         return iter(cls.registry)
-
-
-# In[ ]:
-
 
 class Artist(object):
     __metaclass__ = IterRegistry
@@ -40,21 +26,10 @@ class Artist(object):
         return "Name: % s" % (self.artistname)
         
     def getName(self):
-        return f'Artist/s: {self.artistname.strip("[]")}'
-    
-#     def __getitem__(self, index):
-#         return self[index]
-#         print(self[index])
-    
-    def __index__(self):
-        return self.artistname
+        return f'Artist: {self.artistname.strip("[]")}'
     
     def setName(self):
         pass
-
-
-# In[ ]:
-
 
 class Song(object):
     __metaclass__ = IterRegistry
@@ -104,12 +79,6 @@ class Song(object):
     def getSongName(self):
         return f'Song: {self.songname}'
 
-
-# In[ ]:
-
-
-# Class for the extra features from the dataset
-
 class Extras(object):
     __metaclass__ = IterRegistry
     _registry = []
@@ -144,10 +113,6 @@ class Extras(object):
         return f'Duration: {self.duration_ms}, Explicit: {self.explicit}, Instrumentalness: {self.instrumentalness}, Key: {self.key}, Mode: {self.mode}, Release Date: {self.release_date}'
         
 
-
-# In[ ]:
-
-
 # Define a sub-class that inherits all features from the above classes
 
 class Track(Artist, Song, Extras):
@@ -176,11 +141,11 @@ class Track(Artist, Song, Extras):
     
     # Override inherited repr so that the output is correct
     def __repr__(self):
-        return f'Artist/s: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
+        return f'Artist: {self.artistname.strip("[]")}, Song: {self.songname}, ID: {self.music_ID}, Acousticness: {self.acousticness}, Danceability: {self.danceability}, Energy: {self.energy}, Liveness: {self.liveness}, Loudness: {self.loudness}, Popularity: {self.popularity}, Speechiness: {self.speechiness}, Tempo: {self.tempo}, Valence: {self.valence}'
     
     def to_dict(self): # Extract the relevant features to a dictionary
         return {
-            #'Artist/s': self.artistname,
+            #'Artist': self.artistname,
             #'Song Name': self.songname,
             'Acousticness': self.acousticness,
             'Danceability': self.danceability,
@@ -195,10 +160,6 @@ class Track(Artist, Song, Extras):
             'Instrumentalness': self.instrumentalness,
         }
 
-
-# In[ ]:
-
-
 class File_loader():
     __metaclass__ = IterRegistry
     _registry = []
@@ -210,11 +171,18 @@ class File_loader():
     def read_file(self):
         try:
             df_file = pd.read_csv(self.data, delimiter=',', low_memory=False)
+            
             #Remove duplicate song entries
             df_file = df_file.drop_duplicates(subset=['artists', 'name'], keep='last')
+            
+            # Split the artists by the comma between multiple names
+            artists = df_file.artists.str.split(',')
+            
+            # Take only the first name from each line
+            artists = [artist[0] for artist in artists]
             df_file.rename(columns={'mode': 'modal'}, inplace = True)
 
-            for value in zip(df_file.artists,
+            for value in zip(artists,
                              df_file.name,                          
                              df_file.id, 
                              df_file.acousticness, 
