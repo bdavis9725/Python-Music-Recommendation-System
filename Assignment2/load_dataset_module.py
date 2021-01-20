@@ -3,25 +3,13 @@
 
 # ### PCP Assignment 2 Module 1 - load_dataset_module
 
-# In[ ]:
-
-
 import pandas as pd # Load the library we need
-
-
-# ### Define the classes
-
-# In[ ]:
 
 
 # Use a metaclass to make classes iterable later
 class IterRegistry(type):
     def __iter__(cls):
         return iter(cls.registry)
-
-
-# In[ ]:
-
 
 class Artist(object):
     __metaclass__ = IterRegistry
@@ -50,10 +38,6 @@ class Artist(object):
     
     def setName(self):
         pass
-
-
-# In[ ]:
-
 
 class Song(object):
     __metaclass__ = IterRegistry
@@ -103,12 +87,6 @@ class Song(object):
     def getSongName(self):
         return f'Song: {self.songname}'
 
-
-# In[ ]:
-
-
-# Class for the extra features from the dataset
-
 class Extras(object):
     __metaclass__ = IterRegistry
     _registry = []
@@ -142,10 +120,6 @@ class Extras(object):
     def getExtras(self):
         return f'Duration: {self.duration_ms}, Explicit: {self.explicit}, Instrumentalness: {self.instrumentalness}, Key: {self.key}, Mode: {self.mode}, Release Date: {self.release_date}'
         
-
-
-# In[ ]:
-
 
 # Define a sub-class that inherits all features from the above classes
 
@@ -193,10 +167,6 @@ class Track(Artist, Song, Extras):
             'Explicit': self.explicit,
             'Instrumentalness': self.instrumentalness,
         }
-
-
-# In[ ]:
-
 
 class File_loader():
     __metaclass__ = IterRegistry

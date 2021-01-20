@@ -3,9 +3,6 @@
 
 # ### PCP Assignment 2 Module 2 - similarity_module
 
-# In[ ]:
-
-
 from load_dataset_module import Artist, Song, Track, IterRegistry, Extras, File_loader # Classes
 import pandas as pd
 import numpy as np
@@ -22,10 +19,6 @@ from sklearn.preprocessing import MinMaxScaler
 import warnings
 warnings.filterwarnings('ignore')
 
-
-# In[ ]:
-
-
 class Searcher(object):
     __metaclass__ = IterRegistry
     _registry = []
@@ -37,14 +30,13 @@ class Searcher(object):
         list_name = self.list_name
         
         try:
-            fName = str(input("Please enter the first name of the artist you want to find. Please start with a capital letter: ").strip())
-            lName = str(input("Please enter the surname of the artist you want to find. Please start with a capital letter: ").strip())
+            fName = str(input("Please enter the first name of the artist you want to find. ").strip().capitalize())
+            lName = str(input("Please enter the surname of the artist you want to find. ").strip().capitalize())
     
             # Create empty lists for the inputs
             result_names = []
             result_songs = []
             result_id = []
-            num = 0 # Index for printing results
             
             # Loop through the dictionary, extract all matching artist + song values
             for i in range(len(list_name)): # range of the whole class-based list
@@ -61,14 +53,43 @@ class Searcher(object):
                 
             if len(result_id) == 0: # If the length of the list above is 0, we found no matches
                 print("Your search returned no results.")
+                print("Trying your search with all upper case, please wait.")
+                # Capitalise full the input
+                fName = fName.upper()
+                lName = lName.upper()
+                
+                if fName.upper():
+                    #Upper case
+                    #Loop through the dictionary, extract all matching artist + song values
+                    for i in range(len(list_name)): # range of the whole class-based list
+                        if lName != "":  # If the last name entry is not left blank
+                            if fName + " " + lName in list_name[i].getName():
+                                result_names.append(list_name[i].getName())
+                                result_songs.append(list_name[i].getSongName())
+                                result_id.append(i) 
+                        else:  # If the artist only has one name e.g. Nirvana
+                            if fName in list_name[i].getName():
+                                result_names.append(list_name[i].getName())
+                                result_songs.append(list_name[i].getSongName())
+                                result_id.append(i) 
+                    
+                    if len(result_id) == 0: # If the length of the list above is 0, we found no matches
+                        print("Your search returned no results.")
+                    else:
+                        print("Your search returned {} results.".format(len(result_id)))
+                        output = str(input("Would you like to view results? ").strip().capitalize())
+                        if output == "Yes":
+                            for k in range(0, len(result_id)):
+                                print("ID: {} | {} | {} | ".format(result_id[k], result_names[k], result_songs[k]))
+                else:
+                    print("Your search returned no results.")
+
             else:
-                # return an assignable dictionary using the First Name and Surname Initial for the indexable ID
                 print("Your search returned {} results.".format(len(result_id)))
                 output = str(input("Would you like to view results? ").strip().capitalize())
                 if output == "Yes":
                     for k in range(0, len(result_id)):
-                        print("ID: {} | {} | {} | ".format(result_id[num], result_names[num], result_songs[num]))
-                        num+=1
+                        print("ID: {} | {} | {} | ".format(result_id[k], result_names[k], result_songs[k]))
                 else:
                     print("Search complete.")
             
@@ -132,10 +153,6 @@ class Searcher(object):
         except TypeError as typeerror:
             return(print("You can't enter a number or symbol here, please enter a string dictionary name.", typeerror)) 
 
-
-# In[ ]:
-
-
 class Similarity_metric(object):
     __metaclass__ = IterRegistry
     _registry = []
@@ -195,16 +212,13 @@ class Similarity_metric(object):
         elif metric == 5:
             return Similarity_metric(self.list_name, [id1], [id2]).manhattan()
         else:
-            print("Your selection is incorrect. Defaulting to Euclidean.")
-            return Similarity_metric(self.list_name, id1, id2).euclidean()
+            print("Your selection is incorrect. Defaulting to Cosine.")
+            return Similarity_metric(self.list_name, id1, id2).cosine()
     
     def metric_selection(self):
         metric_select = ["Euclidean", "Cosine", "Pearson", "Jaccard", "Manhattan"]
         for number, metric in enumerate(metric_select, start=1):
             print(number, metric) # Present a list of options to the user for metric choice 
-
-
-# In[ ]:
 
 
 # Part 1 Code is here
@@ -223,8 +237,6 @@ class Comparison(Similarity_metric):
         id2 = self.library
         
         try:
-            #id1 = id1
-            #id2 = id2
             id1 = int(input("Please insert your first id for music features: "))
             id2 = int(input("Please insert your second id for music features: "))
 
@@ -256,8 +268,11 @@ class Comparison(Similarity_metric):
                                 distance = np.corrcoef([x, y])
                             elif response == 4:
                                 distance = Comparison(list_name, x, y).jaccard()
-                            else: # Response is 5
+                            elif response == 5: # Response is 5
                                 distance = Comparison(list_name, [x],[y]).manhattan()
+                            else:
+                                print("Your selection is incorrect. Defaulting to Cosine.")
+                                distance = Comparison(list_name, x, y).cosine()                            
 
                         print(column_list[i] + ':', round(distance, 3)) # print all feature metrics
                 else:
@@ -269,6 +284,7 @@ class Comparison(Similarity_metric):
        
         except IndexError:
             print("The ID you entered was too large, please enter a value between 0 and 156608")
+            Comparison(list_name, '','').measure_feature()
         except KeyError as keyerror:
             print("That feature doesn't exist.", keyerror)
             Comparison(list_name, '','').measure_feature()
@@ -277,16 +293,13 @@ class Comparison(Similarity_metric):
             Comparison(list_name, '','').measure_feature()
         except TypeError:
             print("Invalid type entered.")
+            Comparison(list_name, '','').measure_feature()
         except ZeroDivisionError:
             print("Sorry, but you cannot divide by 0, metric will restart.")
             Comparison(list_name, '','').measure_feature()
         except AttributeError as attrerror:
             print(attrerror)
             Comparison(list_name, '','').measure_feature()
-
-
-# In[ ]:
-
 
 class Recommendation(Similarity_metric):
     
@@ -307,20 +320,18 @@ class Recommendation(Similarity_metric):
         elif metric == 5:
             return 5
         else:
-            print("Your selection is incorrect. Defaulting to Euclidean.")
-            return 1 
+            print("Your selection is incorrect. Defaulting to Cosine.")
+            return 2 
 
     def get_artist_recommendation(self):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            #scaler = MinMaxScaler() # To normalise the values for the engine
         
             # Define needed variables
             results = []
             id_num = int(input("Please enter the ID number of an artist: "))
             j = 0
-            #recom_artists = [] # a set will remove duplicates
         
             Recommendation(list_name, class_list).metric_selection()
             response = Recommendation(list_name, class_list).metric_choice()
@@ -392,7 +403,6 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            #scaler = MinMaxScaler()
         
             # Define needed variables
             results = []
@@ -465,7 +475,6 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            #scaler = MinMaxScaler()
 
             # Define needed variables
             results = []
@@ -538,7 +547,6 @@ class Recommendation(Similarity_metric):
         try:
             list_name = self.list_name
             class_list = self.class_list
-            #scaler = MinMaxScaler()
 
             # Define needed variables
             results = []
@@ -593,10 +601,12 @@ class Recommendation(Similarity_metric):
         except IndexError:
             print("The ID you entered was too large, please enter a value between 0 and 156608")
             Recommendation(list_name, class_list).get_knn_recommendation()
+        except OverflowError:
+            print("The inputted value was too large, please enter a valid value.")
+            Recommendation(list_name, class_list).get_knn_recommendation()
         except ValueError:
             print("Your entry is invalid, please make sure your entry was the correct format.")
             Recommendation(list_name, class_list).get_knn_recommendation()
         except TypeError:
             print("Invalid type entered.")
             Recommendation(list_name, class_list).get_knn_recommendation()
-
