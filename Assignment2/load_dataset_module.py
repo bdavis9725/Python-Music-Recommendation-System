@@ -5,7 +5,6 @@
 
 import pandas as pd # Load the library we need
 
-
 # Use a metaclass to make classes iterable later
 class IterRegistry(type):
     def __iter__(cls):
