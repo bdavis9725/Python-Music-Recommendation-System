@@ -7,5 +7,5 @@ Part 1 involves using concepts of Python without using libraries to create a sys
 
 Part 2 involves using OOP concepts to create a system that provides n most similar tracks to a user based their selection / entry. The value of n is chosen by the user.
 
-UI Image for Part is located here, it will changed to a gif later.
+UI Image for Part 2 is located here, it will changed to a gif later.
 ![|250x250](.//Assignment2/UI_Part2.jpeg)
