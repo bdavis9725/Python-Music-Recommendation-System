@@ -271,7 +271,6 @@ class Comparison(Similarity_metric):
                             elif response == 5: # Response is 5
                                 distance = Comparison(list_name, [x],[y]).manhattan()
                             else:
-                                print("Your selection is incorrect. Defaulting to Cosine.")
                                 distance = Comparison(list_name, x, y).cosine()                            
 
                         print(column_list[i] + ':', round(distance, 3)) # print all feature metrics
