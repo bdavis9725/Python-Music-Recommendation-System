@@ -15,7 +15,7 @@ from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.neighbors import NearestNeighbors as knn
 from sklearn.preprocessing import MinMaxScaler
 
-# Disable warnings, these are not required for the user to see (might be removed)
+# Disable warnings
 import warnings
 warnings.filterwarnings('ignore')
 
