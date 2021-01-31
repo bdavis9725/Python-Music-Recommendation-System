@@ -9,7 +9,7 @@
 def search_artist(dict_name):
     try:
         fName = str(input("Please enter the first name of the artist you want to find: ").capitalize().rstrip())
-        lName = str(input("Please enter the surname of the artist you want to find. At least an Initial entry is required: "                         ).capitalize().rstrip())
+        lName = str(input("Please enter the surname of the artist you want to find. At least an Initial entry is required: ").capitalize().rstrip())
         feature = str(input("Please enter the feature you want to find for the artists' songs: ").capitalize().rstrip())
     
         # Create empty dictionary and lists for the inputs
